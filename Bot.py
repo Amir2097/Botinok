@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from aiogram import Bot, Dispatcher, types, executor
+from Database import User, Notes, create_tables, user_entry
 
 
 
@@ -15,30 +16,36 @@ logging.basicConfig(level=logging.INFO)
 
 
 @dp.message_handler(commands="start")
-async def cmd_test1(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["👾 БОТИНОК для заметок 👾"]
-    # buttons = ["Новая заметка", "Мои заметки", "Редактирование", "БОТИНОК", "Удаление", "Напоминание"]
-    keyboard.add(*buttons)
+async def cmd_random(message: types.Message):
+
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(types.InlineKeyboardButton(text="🤖 БОТИНОК для заметок 🤖", callback_data="botinok_start"))
     await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️", reply_markup=keyboard)
 
-@dp.message_handler(lambda message: message.text == "🤖 БОТИНОК для заметок 🤖")
-async def without_puree(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["📋 Новая заметка", "💼 Мои заметки", "✍️ Редактирование", "👞 БОТИНОК", "❌ Удаление", "✅ Напоминание"]
+@dp.callback_query_handler(text="botinok_start")
+async def send_random_value(call: types.CallbackQuery):
+    buttons = [
+        types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),
+        types.InlineKeyboardButton(text="💼 Мои заметки", callback_data="my_notes"),
+        types.InlineKeyboardButton(text="✍️ Редактирование", callback_data="edit_notes"),
+        types.InlineKeyboardButton(text="👞 БОТИНОК", callback_data="botinok"),
+        types.InlineKeyboardButton(text="❌ Удаление", callback_data="delete_notes"),
+        types.InlineKeyboardButton(text="✅ Напоминание", callback_data="reminder_notes")
+    ]
+    keyboard = types.InlineKeyboardMarkup(row_width=3)
     keyboard.add(*buttons)
+    await call.message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
+                              "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
 
-    await message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
-                         "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
 
-@dp.message_handler(commands="special_buttons")
-async def cmd_special_buttons(message: types.Message):
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(types.KeyboardButton(text="Запросить геолокацию", request_location=True))
-    keyboard.add(types.KeyboardButton(text="Запросить контакт", request_contact=True))
-    keyboard.add(types.KeyboardButton(text="Создать викторину",
-                                      request_poll=types.KeyboardButtonPollType(type=types.PollType.QUIZ)))
-    await message.answer("Выберите действие:", reply_markup=keyboard)
+
+@dp.callback_query_handler(text="new_notes")
+async def send_random_value(message: types.Message):
+    await message.answer("Напишите новую заметку ✍️!")
+    new_notes = message.text
+    user_entry(message.from_user)
+
+
 
 
 
