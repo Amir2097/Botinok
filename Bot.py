@@ -17,9 +17,19 @@ logging.basicConfig(level=logging.INFO)
 @dp.message_handler(commands="start")
 async def cmd_test1(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    buttons = ["С пюрешкой", "Без пюрешки"]
+    buttons = ["👾 БОТИНОК для заметок 👾"]
+    # buttons = ["Новая заметка", "Мои заметки", "Редактирование", "БОТИНОК", "Удаление", "Напоминание"]
     keyboard.add(*buttons)
-    await message.answer("Как подавать котлеты?", reply_markup=keyboard)
+    await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️", reply_markup=keyboard)
+
+@dp.message_handler(lambda message: message.text == "🤖 БОТИНОК для заметок 🤖")
+async def without_puree(message: types.Message):
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    buttons = ["📋 Новая заметка", "💼 Мои заметки", "✍️ Редактирование", "👞 БОТИНОК", "❌ Удаление", "✅ Напоминание"]
+    keyboard.add(*buttons)
+
+    await message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
+                         "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
 
 @dp.message_handler(commands="special_buttons")
 async def cmd_special_buttons(message: types.Message):
