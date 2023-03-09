@@ -1,5 +1,6 @@
 import sqlalchemy as sq
 from sqlalchemy.orm import relationship, declarative_base
+from extraction.ext_cityes import rec_db_cityes
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
@@ -57,6 +58,12 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
+def city_entry():
+    new_city = City(id_city=rec_db_cityes()['ID'], name=rec_db_cityes()['Name'], url=rec_db_cityes()['Url'])
+    session.add(new_city)
+    session.commit()
+
+
 def user_entry(self):
     new_user = User(id_tg=self.id_tg, first_name=self.first_name)
     session.add(new_user)
@@ -69,4 +76,4 @@ def notes_new(self, text_notes):
     session.commit()
 
 
-user_entry()
+city_entry()
