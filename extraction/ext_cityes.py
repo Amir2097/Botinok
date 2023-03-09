@@ -15,4 +15,6 @@ def rec_db_cityes():
 
     for liter in response.json()["Layout"]["CitySelector"]["OnLetterNamedCityGroups"]:
         for liters in liter["Cities"]:
-            print(liters)
+            return liters
+
+print(rec_db_cityes())
