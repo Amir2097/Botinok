@@ -29,6 +29,16 @@ class Notes(Base):
     def __str__(self):
         return f'Notes {self.id}, {self.create_date}, {self.user_id}: {self.text_notes}'
 
+class City(Base):
+    __tablename__ = 'City'
+    id = sq.Column(sq.Integer, primary_key=True)
+    id_city = sq.Column(sq.Integer)
+    name = sq.Column(sq.String(length=80))
+    url = sq.Column(sq.String(length=80))
+
+    def __str__(self):
+        return f'City {self.id}, {self.id_city}, {self.name}: {self.url}'
+
 def create_tables(engine):
     # Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
