@@ -65,10 +65,14 @@ def city_entry():
         session.commit()
 
 
-def user_entry(self):
-    new_user = User(id_tg=self.id_tg, first_name=self.first_name)
-    session.add(new_user)
-    session.commit()
+def user_entry(ids, name):
+    user_verification = session.query(User.id).filter(User.id_tg == ids)
+    if session.query(user_verification.exists()).scalar():
+        print('Its good')
+    else:
+        new_user = User(id_tg=ids, first_name=name)
+        session.add(new_user)
+        session.commit()
 
 
 def notes_new(self, text_notes):
