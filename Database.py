@@ -7,6 +7,8 @@ import os
 load_dotenv()
 
 Base = declarative_base()
+
+
 class User(Base):
     __tablename__ = 'User'
     id = sq.Column(sq.Integer, primary_key=True)
@@ -29,6 +31,7 @@ class Notes(Base):
     def __str__(self):
         return f'Notes {self.id}, {self.create_date}, {self.user_id}: {self.text_notes}'
 
+
 class City(Base):
     __tablename__ = 'City'
     id = sq.Column(sq.Integer, primary_key=True)
@@ -39,9 +42,11 @@ class City(Base):
     def __str__(self):
         return f'City {self.id}, {self.id_city}, {self.name}: {self.url}'
 
+
 def create_tables(engine):
     # Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
+
 
 DSN = f'postgresql+psycopg2://{os.getenv("DATABASE_USER")}:{os.getenv("DATABASE_PASSWORD")}' \
       f'@{os.getenv("HOST")}:{os.getenv("DATABASE_PORT")}/{os.getenv("DATABASE_NAME")}'
@@ -57,10 +62,11 @@ def user_entry(self):
     session.add(new_user)
     session.commit()
 
+
 def notes_new(self, text_notes):
     new_user = Notes(text_notes=text_notes, user_id=self.first_name)
     session.add(new_user)
     session.commit()
 
-user_entry()
 
+user_entry()
