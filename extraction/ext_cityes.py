@@ -12,9 +12,8 @@ def rec_db_cityes():
     }
 
     response = requests.request("GET", url, headers=headers, data=payload)
-
+    cyties_list = []
     for liter in response.json()["Layout"]["CitySelector"]["OnLetterNamedCityGroups"]:
         for liters in liter["Cities"]:
-            return liters
-
-print(rec_db_cityes())
+            cyties_list.append(liters)
+    return cyties_list

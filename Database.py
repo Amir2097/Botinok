@@ -59,9 +59,10 @@ session = Session()
 
 
 def city_entry():
-    new_city = City(id_city=rec_db_cityes()['ID'], name=rec_db_cityes()['Name'], url=rec_db_cityes()['Url'])
-    session.add(new_city)
-    session.commit()
+    for enter_city in rec_db_cityes():
+        new_city = City(id_city=enter_city['ID'], name=enter_city['Name'], url=enter_city['Url'])
+        session.add(new_city)
+        session.commit()
 
 
 def user_entry(self):
@@ -74,6 +75,3 @@ def notes_new(self, text_notes):
     new_user = Notes(text_notes=text_notes, user_id=self.first_name)
     session.add(new_user)
     session.commit()
-
-
-city_entry()
