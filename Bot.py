@@ -18,7 +18,8 @@ logging.basicConfig(level=logging.INFO)
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
     user_name = f"{message.from_user.first_name} {message.from_user.last_name}"
-    user_entry(message.from_user.id, user_name)
+    user_entry(message.from_user.id, user_name, None, message.date)
+    print(message)
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text="🤖 БОТИНОК для заметок 🤖", callback_data="botinok_start"))
     await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️", reply_markup=keyboard)
