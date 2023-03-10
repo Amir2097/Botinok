@@ -15,6 +15,9 @@ class User(Base):
     id = sq.Column(sq.Integer, primary_key=True)
     id_tg = sq.Column(sq.Integer)
     first_name = sq.Column(sq.String(length=80))
+    city = sq.Column(sq.String(length=20))
+    reg_date = sq.Column(sq.TIMESTAMP, nullable=False)
+
 
     def __str__(self):
         return f'User {self.id}, {self.id_tg}: {self.first_name}'
@@ -65,12 +68,12 @@ def city_entry():
         session.commit()
 
 
-def user_entry(ids, name):
+def user_entry(ids, name, cities, rdate):
     user_verification = session.query(User.id).filter(User.id_tg == ids)
     if session.query(user_verification.exists()).scalar():
         print('Its good')
     else:
-        new_user = User(id_tg=ids, first_name=name)
+        new_user = User(id_tg=ids, first_name=name, city=cities, reg_date=rdate)
         session.add(new_user)
         session.commit()
 
