@@ -53,7 +53,6 @@ async def new_notes_add(message: types.Message) -> None:
 async def new_notes_add(message: types.Message, state: FSMContext):
     async with state.proxy() as data:  # Устанавливаем состояние ожидания
         data['text'] = message.text
-        print(data['text'])
         subq = session.query(User.id).filter(User.id_tg == message.from_user.id).first()
         notes_new(data['text'], subq)
     await message.answer("Заметка готова ✍️!")
