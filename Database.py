@@ -78,7 +78,7 @@ def user_entry(ids, name, cities, rdate):
         session.commit()
 
 
-def notes_new(self, text_notes):
-    new_user = Notes(text_notes=text_notes, user_id=self.first_name)
+def notes_new(text_notes, user_id):
+    new_user = Notes(text_notes=text_notes, user_id=user_id)
     session.add(new_user)
     session.commit()

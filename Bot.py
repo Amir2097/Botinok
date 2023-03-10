@@ -2,18 +2,22 @@ from dotenv import load_dotenv
 import os
 import logging
 from aiogram import Bot, Dispatcher, types, executor
-from Database import User, Notes, create_tables, user_entry
-
-
+from Database import User, Notes, create_tables, user_entry, notes_new
+from Database import session
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(os.getenv("TOKEN"))
 
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=MemoryStorage())
 logging.basicConfig(level=logging.INFO)
 
+class ProfilStatesGroup(StatesGroup):
+    text = State()
 
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
@@ -40,12 +44,20 @@ async def send_random_value(call: types.CallbackQuery):
                               "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
 
 
-
 @dp.callback_query_handler(text="new_notes")
-async def send_random_value(message: types.Message):
+async def new_notes_add(message: types.Message) -> None:
     await message.answer("Напишите новую заметку ✍️!")
-    new_notes = message.text
-    user_entry(message.from_user)
+    await ProfilStatesGroup.text.set()  # Устанавливаем состояние
+
+@dp.message_handler(state=ProfilStatesGroup.text)  # Принимаем состояние
+async def new_notes_add(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:  # Устанавливаем состояние ожидания
+        data['text'] = message.text
+        print(data['text'])
+        subq = session.query(User.id).filter(User.id_tg == message.from_user.id).first()
+        notes_new(data['text'], subq)
+    await message.answer("Заметка готова ✍️!")
+    await state.finish()
 
 
 
