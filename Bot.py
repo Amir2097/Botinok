@@ -23,7 +23,6 @@ class ProfilStatesGroup(StatesGroup):
 async def cmd_random(message: types.Message):
     user_name = f"{message.from_user.first_name} {message.from_user.last_name}"
     user_entry(message.from_user.id, user_name, None, message.date)
-    print(message)
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text="🤖 БОТИНОК для заметок 🤖", callback_data="botinok_start"))
     await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️", reply_markup=keyboard)
@@ -45,21 +44,23 @@ async def send_random_value(call: types.CallbackQuery):
 
 
 @dp.callback_query_handler(text="new_notes")
-async def new_notes_add(message: types.Message) -> None:
-    await message.answer("Напишите новую заметку ✍️!")
+async def new_notes_add(call: types.CallbackQuery) -> None:
+    await call.message.answer("Напишите новую заметку ✍️!")
     await ProfilStatesGroup.text.set()  # Устанавливаем состояние
 
 @dp.message_handler(state=ProfilStatesGroup.text)  # Принимаем состояние
 async def new_notes_add(message: types.Message, state: FSMContext):
     async with state.proxy() as data:  # Устанавливаем состояние ожидания
         data['text'] = message.text
-        subq = session.query(User.id).filter(User.id_tg == message.from_user.id).first()
-        notes_new(data['text'], subq)
+        subq = session.query(User.id).filter(User.id_tg == message.from_user.id)
+        for q in subq:
+            notes_new(data['text'], q.id)
     await message.answer("Заметка готова ✍️!")
     await state.finish()
 
-
-
+@dp.callback_query_handler(text="my_notes")
+async def new_notes_add(call: types.CallbackQuery) -> None:
+    await call.message.answer("Напишите новую заметку ✍️!")
 
 
 if __name__ == "__main__":

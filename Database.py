@@ -4,6 +4,7 @@ from extraction.ext_cityes import rec_db_cityes
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
+import datetime
 
 load_dotenv()
 
@@ -26,7 +27,7 @@ class User(Base):
 class Notes(Base):
     __tablename__ = 'Notes'
     id = sq.Column(sq.Integer, primary_key=True)
-    create_date = sq.Column(sq.TIMESTAMP, nullable=False)
+    created_date = sq.Column(sq.DateTime, default=datetime.datetime.utcnow)
     text_notes = sq.Column(sq.Text)
     user_id = sq.Column(sq.Integer, sq.ForeignKey("User.id"), nullable=False)
 
