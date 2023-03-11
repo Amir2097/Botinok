@@ -13,7 +13,13 @@ def rec_db_cityes():
 
     response = requests.request("GET", url, headers=headers, data=payload)
     cyties_list = []
+
+    for liter_main in response.json()["Layout"]["CitySelector"]["MainCities"]:
+        cyties_list.append(liter_main)
+
     for liter in response.json()["Layout"]["CitySelector"]["OnLetterNamedCityGroups"]:
         for liters in liter["Cities"]:
             cyties_list.append(liters)
+
     return cyties_list
+
