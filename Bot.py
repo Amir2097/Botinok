@@ -16,8 +16,10 @@ bot = Bot(os.getenv("TOKEN"))
 dp = Dispatcher(bot, storage=MemoryStorage())
 logging.basicConfig(level=logging.INFO)
 
+
 class ProfilStatesGroup(StatesGroup):
     text = State()
+
 
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
@@ -25,7 +27,9 @@ async def cmd_random(message: types.Message):
     user_entry(message.from_user.id, user_name, None, message.date)
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text="🤖 БОТИНОК для заметок 🤖", callback_data="botinok_start"))
-    await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️", reply_markup=keyboard)
+    await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️",
+                         reply_markup=keyboard)
+
 
 @dp.callback_query_handler(text="botinok_start")
 async def send_random_value(call: types.CallbackQuery):
@@ -48,6 +52,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
     await call.message.answer("Напишите новую заметку ✍️!")
     await ProfilStatesGroup.text.set()  # Устанавливаем состояние
 
+
 @dp.message_handler(state=ProfilStatesGroup.text)  # Принимаем состояние
 async def new_notes_add(message: types.Message, state: FSMContext):
     async with state.proxy() as data:  # Устанавливаем состояние ожидания
@@ -58,6 +63,7 @@ async def new_notes_add(message: types.Message, state: FSMContext):
     await message.answer("Заметка готова ✍️!")
     await state.finish()
 
+
 @dp.callback_query_handler(text="my_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
     await call.message.answer("Напишите новую заметку ✍️!")
@@ -65,6 +71,3 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
-
-
-
