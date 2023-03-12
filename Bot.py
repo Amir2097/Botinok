@@ -49,9 +49,28 @@ async def send_random_value(call: types.CallbackQuery):
                               "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
 
 @dp.callback_query_handler(text="events_data")
-async def new_notes_add(call: types.CallbackQuery) -> None:
-    await call.message.answer(f'📝 Ваши заметки:')
-    print(call.message)
+async def new_notes_add(call: types.CallbackQuery):
+    buttons = [
+        types.InlineKeyboardButton(text="Настройки", callback_data="setting"),
+        types.InlineKeyboardButton(text="Данные", callback_data="ext_data_event")
+    ]
+    keyboard = types.InlineKeyboardMarkup(row_width=3)
+    keyboard.add(*buttons)
+    await call.message.answer("Выбор действия", reply_markup=keyboard)
+
+    @dp.callback_query_handler(text="setting")
+    async def new_notes_add(call: types.CallbackQuery):
+        buttons = [
+            types.InlineKeyboardButton(text="Редактировать город", callback_data="city_edit"),
+        ]
+        keyboard = types.InlineKeyboardMarkup(row_width=3)
+        keyboard.add(*buttons)
+        await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=keyboard)
+
+        @dp.callback_query_handler(text="city_edit")
+        async def new_notes_add(call: types.CallbackQuery) -> None:
+            await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
+            await ProfilStatesGroup.text.set()  # Вот эту чушню надо записать в базу данных User в полу city
 
 
 @dp.callback_query_handler(text="new_notes")
