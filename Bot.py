@@ -27,6 +27,7 @@ async def cmd_random(message: types.Message):
     user_entry(message.from_user.id, user_name, None, message.date)
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text="🤖 БОТИНОК для заметок 🤖", callback_data="botinok_start"))
+    keyboard.add(types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"))
     await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️",
                          reply_markup=keyboard)
 
@@ -43,6 +44,11 @@ async def send_random_value(call: types.CallbackQuery):
     keyboard.add(*buttons)
     await call.message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
                               "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
+
+@dp.callback_query_handler(text="events_data")
+async def new_notes_add(call: types.CallbackQuery) -> None:
+    await call.message.answer(f'📝 Ваши заметки:')
+    print(call.message)
 
 
 @dp.callback_query_handler(text="new_notes")
