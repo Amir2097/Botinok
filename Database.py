@@ -108,6 +108,7 @@ def city_edit(ids, cities="Москва"):
             data_edit.city = cities
             session.add(data_edit)
             session.commit()
+            return "Информация о городе обновлена"
         else:
             return "Данный пользователь отсутствует в базе"
     else:

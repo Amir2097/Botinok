@@ -1,12 +1,12 @@
-from dotenv import load_dotenv
 import os
 import logging
-from aiogram import Bot, Dispatcher, types, executor
-from Database import User, Notes, create_tables, user_entry, notes_new, city_edit
 from Database import session
+from dotenv import load_dotenv
 from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from Database import User, Notes, create_tables, user_entry, notes_new, city_edit
 
 load_dotenv()
 
@@ -49,6 +49,7 @@ async def send_random_value(call: types.CallbackQuery):
     await call.message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
                               "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
 
+
 @dp.callback_query_handler(text="events_data")
 async def event(call: types.CallbackQuery):
     buttons = [
@@ -58,6 +59,10 @@ async def event(call: types.CallbackQuery):
     keyboard = types.InlineKeyboardMarkup(row_width=3)
     keyboard.add(*buttons)
     await call.message.answer("Выбор действия", reply_markup=keyboard)
+
+    @dp.callback_query_handler(text="ext_data_event")
+    async def event_settings(call: types.CallbackQuery):
+        pass
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
@@ -77,8 +82,7 @@ async def event(call: types.CallbackQuery):
         async def event_city(message: types.Message, state: FSMContext):
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['city'] = message.text
-                city_edit(message.from_user.id, data['city'])
-            await message.answer(f'Ваш город добавлен ✍️!')
+                await message.answer(city_edit(message.from_user.id, data['city']))
             await state.finish()
 
 
@@ -112,6 +116,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
     for data in subq_my_notes:
         await call.message.answer(f'⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n📝 Ваша заметка:\n'
                                   f'📋 {data.text_notes}', reply_markup=keyboard)
+
 
 @dp.callback_query_handler(text="botinok")
 async def new_notes_add(call: types.CallbackQuery) -> None:
