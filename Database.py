@@ -1,10 +1,10 @@
-import sqlalchemy as sq
 from sqlalchemy.orm import relationship, declarative_base
 from extraction.ext_cityes import rec_db_cityes
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
-import os
+import sqlalchemy as sq
 import datetime
+import os
 
 load_dotenv()
 
@@ -29,7 +29,6 @@ class Notes(Base):
     created_date = sq.Column(sq.DateTime, default=datetime.datetime.utcnow)
     text_notes = sq.Column(sq.Text)
     user_id = sq.Column(sq.Integer, sq.ForeignKey("User.id"), nullable=False)
-
     publisher = relationship(User, backref="notes")
 
     def __str__(self):
