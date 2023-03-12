@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from aiogram import Bot, Dispatcher, types, executor
-from Database import User, Notes, create_tables, user_entry, notes_new
+from Database import User, Notes, create_tables, user_entry, notes_new, city_edit
 from Database import session
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -19,6 +19,7 @@ logging.basicConfig(level=logging.INFO)
 
 class ProfilStatesGroup(StatesGroup):
     text = State()
+    city = State()
 
 
 @dp.message_handler(commands="start")
@@ -49,7 +50,7 @@ async def send_random_value(call: types.CallbackQuery):
                               "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
 
 @dp.callback_query_handler(text="events_data")
-async def new_notes_add(call: types.CallbackQuery):
+async def event(call: types.CallbackQuery):
     buttons = [
         types.InlineKeyboardButton(text="Настройки", callback_data="setting"),
         types.InlineKeyboardButton(text="Данные", callback_data="ext_data_event")
@@ -59,7 +60,7 @@ async def new_notes_add(call: types.CallbackQuery):
     await call.message.answer("Выбор действия", reply_markup=keyboard)
 
     @dp.callback_query_handler(text="setting")
-    async def new_notes_add(call: types.CallbackQuery):
+    async def event_settings(call: types.CallbackQuery):
         buttons = [
             types.InlineKeyboardButton(text="Редактировать город", callback_data="city_edit"),
         ]
@@ -68,9 +69,17 @@ async def new_notes_add(call: types.CallbackQuery):
         await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=keyboard)
 
         @dp.callback_query_handler(text="city_edit")
-        async def new_notes_add(call: types.CallbackQuery) -> None:
+        async def event_edit_city(call: types.CallbackQuery) -> None:
             await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
-            await ProfilStatesGroup.text.set()  # Вот эту чушню надо записать в базу данных User в полу city
+            await ProfilStatesGroup.city.set()
+
+        @dp.message_handler(state=ProfilStatesGroup.city)
+        async def event_city(message: types.Message, state: FSMContext):
+            async with state.proxy() as data:  # Устанавливаем состояние ожидания
+                data['city'] = message.text
+                city_edit(message.from_user.id, data['city'])
+            await message.answer(f'Ваш город добавлен ✍️!')
+            await state.finish()
 
 
 @dp.callback_query_handler(text="new_notes")
