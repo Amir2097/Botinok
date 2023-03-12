@@ -2,6 +2,7 @@ import os
 import logging
 from Database import session
 from dotenv import load_dotenv
+from extraction import ext_events
 from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
