@@ -36,9 +36,7 @@ async def send_random_value(call: types.CallbackQuery):
     buttons = [
         types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),
         types.InlineKeyboardButton(text="💼 Мои заметки", callback_data="my_notes"),
-        types.InlineKeyboardButton(text="✍️ Редактирование", callback_data="edit_notes"),
         types.InlineKeyboardButton(text="👞 БОТИНОК", callback_data="botinok"),
-        types.InlineKeyboardButton(text="❌ Удаление", callback_data="delete_notes"),
         types.InlineKeyboardButton(text="✅ Напоминание", callback_data="reminder_notes")
     ]
     keyboard = types.InlineKeyboardMarkup(row_width=3)
@@ -60,13 +58,27 @@ async def new_notes_add(message: types.Message, state: FSMContext):
         subq = session.query(User.id).filter(User.id_tg == message.from_user.id)
         for q in subq:
             notes_new(data['text'], q.id)
-    await message.answer("Заметка готова ✍️!")
+    await message.answer(f'Заметка готова ✍️!')
     await state.finish()
 
 
 @dp.callback_query_handler(text="my_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
-    await call.message.answer("Напишите новую заметку ✍️!")
+    buttons = [
+        types.InlineKeyboardButton(text="✍️ Редактировать", callback_data="edit_notes"),
+        types.InlineKeyboardButton(text="❌ Удаление", callback_data="delete_notes"),
+    ]
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(*buttons)
+    subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
+    subq_my_notes = session.query(Notes).filter(Notes.user_id == subq.id).all()
+    for data in subq_my_notes:
+        await call.message.answer(f'📝 Ваша заметка:\n⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n'
+                                  f'📋 {data.text_notes}', reply_markup=keyboard)
+
+@dp.callback_query_handler(text="botinok")
+async def new_notes_add(call: types.CallbackQuery) -> None:
+    await call.message.answer(f'📝 Ваши заметки:')
 
 
 if __name__ == "__main__":

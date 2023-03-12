@@ -32,7 +32,7 @@ class Notes(Base):
     publisher = relationship(User, backref="notes")
 
     def __str__(self):
-        return f'Notes {self.id}, {self.create_date}, {self.user_id}: {self.text_notes}'
+        return f'Notes {self.id}, {self.created_date}, {self.user_id}: {self.text_notes}'
 
 
 class City(Base):
