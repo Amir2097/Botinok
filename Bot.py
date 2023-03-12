@@ -25,9 +25,13 @@ class ProfilStatesGroup(StatesGroup):
 async def cmd_random(message: types.Message):
     user_name = f"{message.from_user.first_name} {message.from_user.last_name}"
     user_entry(message.from_user.id, user_name, None, message.date)
-    keyboard = types.InlineKeyboardMarkup()
-    keyboard.add(types.InlineKeyboardButton(text="🤖 БОТИНОК для заметок 🤖", callback_data="botinok_start"))
-    keyboard.add(types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"))
+    buttons = [
+        types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_start"),
+        types.InlineKeyboardButton(text="👞 БОТИНОК", callback_data="botinok"),
+        types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data")
+    ]
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(*buttons)
     await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️",
                          reply_markup=keyboard)
 
@@ -37,7 +41,6 @@ async def send_random_value(call: types.CallbackQuery):
     buttons = [
         types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),
         types.InlineKeyboardButton(text="💼 Мои заметки", callback_data="my_notes"),
-        types.InlineKeyboardButton(text="👞 БОТИНОК", callback_data="botinok"),
         types.InlineKeyboardButton(text="✅ Напоминание", callback_data="reminder_notes")
     ]
     keyboard = types.InlineKeyboardMarkup(row_width=3)
@@ -72,14 +75,14 @@ async def new_notes_add(message: types.Message, state: FSMContext):
 async def new_notes_add(call: types.CallbackQuery) -> None:
     buttons = [
         types.InlineKeyboardButton(text="✍️ Редактировать", callback_data="edit_notes"),
-        types.InlineKeyboardButton(text="❌ Удаление", callback_data="delete_notes"),
+        types.InlineKeyboardButton(text="❌ Удалить", callback_data="delete_notes"),
     ]
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(*buttons)
     subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
     subq_my_notes = session.query(Notes).filter(Notes.user_id == subq.id).all()
     for data in subq_my_notes:
-        await call.message.answer(f'📝 Ваша заметка:\n⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n'
+        await call.message.answer(f'⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n📝 Ваша заметка:\n'
                                   f'📋 {data.text_notes}', reply_markup=keyboard)
 
 @dp.callback_query_handler(text="botinok")
