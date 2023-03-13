@@ -20,6 +20,7 @@ logging.basicConfig(level=logging.INFO)
 class ProfilStatesGroup(StatesGroup):
     text = State()
     city = State()
+    edit = State()
 
 
 @dp.message_handler(commands="start")
@@ -113,9 +114,24 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         await call.message.answer(f'⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n📝 Ваша заметка:\n'
                                   f'📋 {data.text_notes}', reply_markup=keyboard)
 
-@dp.callback_query_handler(text="botinok")
-async def new_notes_add(call: types.CallbackQuery) -> None:
-    await call.message.answer(f'📝 Ваши заметки:')
+    @dp.callback_query_handler(text="edit_notes")
+    async def edit_notes(call: types.CallbackQuery) -> None:
+        sample = call.message.text
+        print(sample[33:])
+
+        await call.message.answer(f'Напишите данную заметку по новому!')
+        await ProfilStatesGroup.edit.set()  # Устанавливаем состояние
+
+        @dp.message_handler(state=ProfilStatesGroup.edit)  # Принимаем состояние
+        async def edit_notes_state(message: types.Message, state: FSMContext):
+            async with state.proxy() as data:  # Устанавливаем состояние ожидания
+                data['edit'] = message.text
+                subq = session.query(User).filter(User.id_tg == message.from_user.id).first()
+                subq_notes = session.query(Notes).filter(Notes.user_id == subq.id, Notes.text_notes == sample[33:]).first()
+                subq_notes.text_notes = data['edit']
+                session.commit()
+            await message.answer(f'Заметка изменена ✍️!')
+            await state.finish()
 
 
 if __name__ == "__main__":
