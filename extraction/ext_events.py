@@ -2,7 +2,7 @@ import requests
 from Database import return_url
 
 
-def event(ids):
+def event_all(ids):
     url = return_url(ids)
     url = f"https://www.afisha.ru{url}"
     payload = {}
@@ -15,4 +15,5 @@ def event(ids):
     response = requests.request("GET", url, headers=headers, data=payload)
     print(response.json())
 
-event(858035466)
+
+event_all(858035466)

@@ -2,7 +2,6 @@ import os
 import logging
 from Database import session
 from dotenv import load_dotenv
-from extraction import ext_events
 from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -83,7 +82,7 @@ async def event(call: types.CallbackQuery):
         async def event_city(message: types.Message, state: FSMContext):
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['city'] = message.text
-                await message.answer(city_edit(message.from_user.id, data['city']))
+                await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
             await state.finish()
 
 
