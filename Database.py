@@ -108,6 +108,7 @@ def city_edit(ids, cities="Москва"):
             data_edit.city = cities
             session.add(data_edit)
             session.commit()
+            return "Информация о городе обновлена"
         else:
             return "Данный пользователь отсутствует в базе"
     else:
@@ -118,3 +119,9 @@ def notes_new(text_notes, user_id):
     new_user = Notes(text_notes=text_notes, user_id=user_id)
     session.add(new_user)
     session.commit()
+
+
+def return_url(ids):
+    ext_city_db = session.query(User.city).filter(User.id_tg == ids).all()[0][0]
+    return session.query(City.url).filter(City.name == ext_city_db).all()[0][0]
+

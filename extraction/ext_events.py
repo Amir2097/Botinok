@@ -1,7 +1,9 @@
 import requests
+from Database import return_url
 
 
-def event(url):
+def event(ids):
+    url = return_url(ids)
     url = f"https://www.afisha.ru{url}"
     payload = {}
     headers = {
@@ -13,5 +15,4 @@ def event(url):
     response = requests.request("GET", url, headers=headers, data=payload)
     print(response.json())
 
-
-event("/eee/")
+event(858035466)
