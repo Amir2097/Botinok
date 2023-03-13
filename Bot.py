@@ -122,9 +122,8 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
     @dp.callback_query_handler(text="edit_notes")
     async def edit_notes(call: types.CallbackQuery) -> None:
         sample = call.message.text
-        print(sample[33:])
-
         await call.message.answer(f'Напишите данную заметку по новому!')
+        await call.answer(f'Лучше воспользуйтесь копи пастом и вставьте в чат ваши изменения!', show_alert=True)
         await ProfilStatesGroup.edit.set()  # Устанавливаем состояние
 
         @dp.message_handler(state=ProfilStatesGroup.edit)  # Принимаем состояние
@@ -137,6 +136,24 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
                 session.commit()
             await message.answer(f'Заметка изменена ✍️!')
             await state.finish()
+            ### Подумать как решить проблему по редактированию
+
+    @dp.callback_query_handler(text="delete_notes")
+    async def delete_notes(call: types.CallbackQuery) -> None:
+        sample = call.message.text
+        subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
+        subq_notes = session.query(Notes).filter(Notes.user_id == subq.id, Notes.text_notes == sample[33:]).first()
+        session.delete(subq_notes)
+        session.commit()
+        await call.message.answer(f'Данная заметка удалена!')
+
+@dp.callback_query_handler(text="reminder_notes")
+async def event(call: types.CallbackQuery):
+    await call.message.answer("Выбор действия")
+
+
+
+
 
 
 if __name__ == "__main__":
