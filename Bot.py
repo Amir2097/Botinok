@@ -2,6 +2,7 @@ import os
 import logging
 import requests
 import datetime
+from extraction.weather import weather
 from Database import session
 from dotenv import load_dotenv
 from aiogram.dispatcher import FSMContext
@@ -159,32 +160,8 @@ async def new_weather(call: types.CallbackQuery) -> None:
     async def get_weather(message: types.Message, state: FSMContext):
         async with state.proxy() as data:  # Устанавливаем состояние ожидания
             data["weather"] = message.text
-            try:
-                response = requests.get(
-                    f'https://api.openweathermap.org/data/2.5/weather?q={data["weather"]}&appid={os.getenv("open_weather_token")}&units=metric'
-                )
-                data = response.json()
-
-                city = data["name"]
-                cur_weather = data["main"]["temp"]
-                humidity = data["main"]["humidity"]
-                pressure = data["main"]["pressure"]
-                wind = data["wind"]["speed"]
-                sunrise_timestamp = datetime.datetime.fromtimestamp(data["sys"]["sunrise"])
-                sunset_timestamp = datetime.datetime.fromtimestamp(data["sys"]["sunset"])
-                length_of_the_day = sunset_timestamp - sunrise_timestamp
-
-                await message.reply(f"***{datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}***\n"
-                      f"Погода в городе: {city}\nТумпература: {cur_weather}C°\n"
-                      f"Влажность: {humidity}%\nДавление: {pressure} мм.рт.ст.\nВетер: {wind}\n"
-                      f"Восход солнца: {sunrise_timestamp}\nЗакат солнца: {sunset_timestamp}\nПродолжительность дня: {length_of_the_day}\n"
-                      f"Прекрасного дня!!!"
-                      )
-                await state.finish()
-
-
-            except Exception as ex:
-                await message.reply("Проверьте название города")
+            await message.reply(weather(data["weather"]))
+            await state.finish()
 
 
 
