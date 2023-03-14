@@ -8,7 +8,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from Database import User, Notes, create_tables, user_entry, notes_new, city_edit
+from Database import User, Notes, user_entry, notes_new, city_edit
 
 load_dotenv()
 
@@ -51,7 +51,8 @@ async def send_random_value(call: types.CallbackQuery):
     :return:
     """
     await call.message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
-                              "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=kb.keyboard_send_random_value)
+                              "В меня вы можете записать все что угодно!🕵️‍♂️🧠",
+                              reply_markup=kb.keyboard_send_random_value)
 
 
 @dp.callback_query_handler(text="events_data")
@@ -115,6 +116,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
     await call.message.answer("Напишите новую заметку ✍️!")
     await ProfilStatesGroup.text.set()  # Устанавливаем состояние
 
+
 @dp.message_handler(state=ProfilStatesGroup.text)  # Принимаем состояние
 async def new_notes_add(message: types.Message, state: FSMContext):
     """
@@ -168,12 +170,13 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['edit'] = message.text
                 subq = session.query(User).filter(User.id_tg == message.from_user.id).first()
-                subq_notes = session.query(Notes).filter(Notes.user_id == subq.id, Notes.text_notes == sample[33:]).first()
+                subq_notes = session.query(Notes).filter(Notes.user_id == subq.id,
+                                                         Notes.text_notes == sample[33:]).first()
                 subq_notes.text_notes = data['edit']
                 session.commit()
             await message.answer(f'Заметка изменена ✍️!')
             await state.finish()
-            ### Подумать как решить проблему по редактированию
+            # Подумать как решить проблему по редактированию
 
     @dp.callback_query_handler(text="delete_notes")
     async def delete_notes(call: types.CallbackQuery) -> None:
@@ -211,7 +214,6 @@ async def new_weather(call: types.CallbackQuery) -> None:
             data["weather"] = message.text
             await message.reply(weather(data["weather"]))
             await state.finish()
-
 
 
 
