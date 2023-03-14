@@ -8,7 +8,6 @@ load_dotenv()
 
 def weather(data):
     """
-
     :return:
     """
     try:
@@ -26,12 +25,12 @@ def weather(data):
         sunset_timestamp = datetime.datetime.fromtimestamp(data["sys"]["sunset"])
         length_of_the_day = sunset_timestamp - sunrise_timestamp
 
-        return (f"***{datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}***\n"
-                f"Погода в городе: {city}\nТумпература: {cur_weather}C°\n"
-                f"Влажность: {humidity}%\nДавление: {pressure} мм.рт.ст.\nВетер: {wind}\n"
-                f"Восход солнца: {sunrise_timestamp}\nЗакат солнца: {sunset_timestamp}\nПродолжительность дня: "
-                f"{length_of_the_day}\n"
-                f"Прекрасного дня!!!"
+        return (f"⌛️ {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')} ⏳\n"
+                f"🌈 Погода в городе: {city}\n🌡 Температура: {cur_weather}C°\n"
+                f"💦 Влажность: {humidity}%\n🎚 Давление: {pressure} мм.рт.ст.\n🌪 Ветер: {wind}\n"
+                f"🌅 Восход солнца: {sunrise_timestamp.strftime('%d-%m %H:%M')}\n🌄 Закат солнца: {sunset_timestamp.strftime('%d-%m %H:%M')}\n"
+                f"🕰 Продолжительность дня: {str(length_of_the_day)[:-3]}\n"
+                f"💥 Прекрасного дня ⭐️"
                 )
 
     except Exception as ex:

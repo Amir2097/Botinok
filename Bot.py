@@ -28,37 +28,77 @@ class ProfilStatesGroup(StatesGroup):
 
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
+    """
+
+    :param message:
+    :return:
+    """
     user_name = f"{message.from_user.first_name} {message.from_user.last_name}"
     user_entry(message.from_user.id, user_name, None, message.date)
-    await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️",
+    await message.answer(f'Привет {message.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
                          reply_markup=kb.keyboard_cmd_random)
+
+@dp.callback_query_handler(text="botinok")
+async def new_notes_add(call: types.CallbackQuery) -> None:
+    pass
 
 
 @dp.callback_query_handler(text="botinok_start")
 async def send_random_value(call: types.CallbackQuery):
+    """
+
+    :param call:
+    :return:
+    """
     await call.message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
                               "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=kb.keyboard_send_random_value)
 
 
 @dp.callback_query_handler(text="events_data")
 async def event(call: types.CallbackQuery):
+    """
+
+    :param call:
+    :return:
+    """
     await call.message.answer("Выбор действия", reply_markup=kb.keyboard_event)
 
     @dp.callback_query_handler(text="ext_data_event")
     async def event_settings(call: types.CallbackQuery):
+        """
+
+        :param call:
+        :return:
+        """
         pass
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
+        """
+
+        :param call:
+        :return:
+        """
         await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=kb.keyboard_event_settings)
 
         @dp.callback_query_handler(text="city_edit")
         async def event_edit_city(call: types.CallbackQuery) -> None:
+            """
+
+            :param call:
+            :return:
+            """
             await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
             await ProfilStatesGroup.city.set()
 
         @dp.message_handler(state=ProfilStatesGroup.city)
         async def event_city(message: types.Message, state: FSMContext):
+            """
+
+            :param message:
+            :param state:
+            :return:
+            """
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['city'] = message.text
                 await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
@@ -67,11 +107,22 @@ async def event(call: types.CallbackQuery):
 
 @dp.callback_query_handler(text="new_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
     await call.message.answer("Напишите новую заметку ✍️!")
     await ProfilStatesGroup.text.set()  # Устанавливаем состояние
 
 @dp.message_handler(state=ProfilStatesGroup.text)  # Принимаем состояние
 async def new_notes_add(message: types.Message, state: FSMContext):
+    """
+
+    :param message:
+    :param state:
+    :return:
+    """
     async with state.proxy() as data:  # Устанавливаем состояние ожидания
         data['text'] = message.text
         subq = session.query(User.id).filter(User.id_tg == message.from_user.id)
@@ -83,6 +134,11 @@ async def new_notes_add(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(text="my_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
     subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
     subq_my_notes = session.query(Notes).filter(Notes.user_id == subq.id).all()
     for data in subq_my_notes:
@@ -91,6 +147,11 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
 
     @dp.callback_query_handler(text="edit_notes")
     async def edit_notes(call: types.CallbackQuery) -> None:
+        """
+
+        :param call:
+        :return:
+        """
         sample = call.message.text
         await call.message.answer(f'Напишите данную заметку по новому!')
         await call.answer(f'Лучше воспользуйтесь копи пастом и вставьте в чат ваши изменения!', show_alert=True)
@@ -98,6 +159,12 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
 
         @dp.message_handler(state=ProfilStatesGroup.edit)  # Принимаем состояние
         async def edit_notes_state(message: types.Message, state: FSMContext):
+            """
+
+            :param message:
+            :param state:
+            :return:
+            """
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['edit'] = message.text
                 subq = session.query(User).filter(User.id_tg == message.from_user.id).first()
@@ -110,6 +177,11 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
 
     @dp.callback_query_handler(text="delete_notes")
     async def delete_notes(call: types.CallbackQuery) -> None:
+        """
+
+        :param call:
+        :return:
+        """
         sample = call.message.text
         subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
         subq_notes = session.query(Notes).filter(Notes.user_id == subq.id, Notes.text_notes == sample[33:]).first()
@@ -117,18 +189,30 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
 
-
 @dp.callback_query_handler(text="weather")
 async def new_weather(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
     await call.message.answer("Привет! Напиши мне название города и я пришлю сводку погоды!")
     await ProfilStatesGroup.weather.set()
 
     @dp.message_handler(state=ProfilStatesGroup.weather)
     async def get_weather(message: types.Message, state: FSMContext):
+        """
+
+        :param message:
+        :param state:
+        :return:
+        """
         async with state.proxy() as data:  # Устанавливаем состояние ожидания
             data["weather"] = message.text
             await message.reply(weather(data["weather"]))
             await state.finish()
+
+
 
 
 
