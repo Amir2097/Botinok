@@ -1,7 +1,6 @@
 import os
 import logging
-import requests
-import datetime
+import keyboard as kb
 from extraction.weather import weather
 from Database import session
 from dotenv import load_dotenv
@@ -31,39 +30,19 @@ class ProfilStatesGroup(StatesGroup):
 async def cmd_random(message: types.Message):
     user_name = f"{message.from_user.first_name} {message.from_user.last_name}"
     user_entry(message.from_user.id, user_name, None, message.date)
-    buttons = [
-        types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_start"),
-        types.InlineKeyboardButton(text="👞 БОТИНОК", callback_data="botinok"),
-        types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"),
-        types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather")
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(*buttons)
     await message.answer("Привет!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️",
-                         reply_markup=keyboard)
+                         reply_markup=kb.keyboard_cmd_random)
 
 
 @dp.callback_query_handler(text="botinok_start")
 async def send_random_value(call: types.CallbackQuery):
-    buttons = [
-        types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),
-        types.InlineKeyboardButton(text="💼 Мои заметки", callback_data="my_notes")
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=3)
-    keyboard.add(*buttons)
     await call.message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
-                              "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=keyboard)
+                              "В меня вы можете записать все что угодно!🕵️‍♂️🧠", reply_markup=kb.keyboard_send_random_value)
 
 
 @dp.callback_query_handler(text="events_data")
 async def event(call: types.CallbackQuery):
-    buttons = [
-        types.InlineKeyboardButton(text="Настройки", callback_data="setting"),
-        types.InlineKeyboardButton(text="Данные", callback_data="ext_data_event")
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=3)
-    keyboard.add(*buttons)
-    await call.message.answer("Выбор действия", reply_markup=keyboard)
+    await call.message.answer("Выбор действия", reply_markup=kb.keyboard_event)
 
     @dp.callback_query_handler(text="ext_data_event")
     async def event_settings(call: types.CallbackQuery):
@@ -71,12 +50,7 @@ async def event(call: types.CallbackQuery):
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
-        buttons = [
-            types.InlineKeyboardButton(text="Редактировать город", callback_data="city_edit"),
-        ]
-        keyboard = types.InlineKeyboardMarkup(row_width=3)
-        keyboard.add(*buttons)
-        await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=keyboard)
+        await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=kb.keyboard_event_settings)
 
         @dp.callback_query_handler(text="city_edit")
         async def event_edit_city(call: types.CallbackQuery) -> None:
@@ -96,7 +70,6 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
     await call.message.answer("Напишите новую заметку ✍️!")
     await ProfilStatesGroup.text.set()  # Устанавливаем состояние
 
-
 @dp.message_handler(state=ProfilStatesGroup.text)  # Принимаем состояние
 async def new_notes_add(message: types.Message, state: FSMContext):
     async with state.proxy() as data:  # Устанавливаем состояние ожидания
@@ -110,17 +83,11 @@ async def new_notes_add(message: types.Message, state: FSMContext):
 
 @dp.callback_query_handler(text="my_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
-    buttons = [
-        types.InlineKeyboardButton(text="✍️ Редактировать", callback_data="edit_notes"),
-        types.InlineKeyboardButton(text="❌ Удалить", callback_data="delete_notes")
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(*buttons)
     subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
     subq_my_notes = session.query(Notes).filter(Notes.user_id == subq.id).all()
     for data in subq_my_notes:
         await call.message.answer(f'⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n📝 Ваша заметка:\n'
-                                  f'📋 {data.text_notes}', reply_markup=keyboard)
+                                  f'📋 {data.text_notes}', reply_markup=kb.keyboard_new_notes_add)
 
     @dp.callback_query_handler(text="edit_notes")
     async def edit_notes(call: types.CallbackQuery) -> None:
