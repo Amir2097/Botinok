@@ -1,6 +1,7 @@
-from dotenv import load_dotenv
 import os
 import logging
+import requests
+import datetime
 from Database import session
 from dotenv import load_dotenv
 from aiogram.dispatcher import FSMContext
@@ -22,6 +23,7 @@ class ProfilStatesGroup(StatesGroup):
     text = State()
     city = State()
     edit = State()
+    weather = State()
 
 
 @dp.message_handler(commands="start")
@@ -31,7 +33,8 @@ async def cmd_random(message: types.Message):
     buttons = [
         types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_start"),
         types.InlineKeyboardButton(text="👞 БОТИНОК", callback_data="botinok"),
-        types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data")
+        types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"),
+        types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather")
     ]
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(*buttons)
@@ -43,8 +46,7 @@ async def cmd_random(message: types.Message):
 async def send_random_value(call: types.CallbackQuery):
     buttons = [
         types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),
-        types.InlineKeyboardButton(text="💼 Мои заметки", callback_data="my_notes"),
-        types.InlineKeyboardButton(text="✅ Напоминание", callback_data="reminder_notes")
+        types.InlineKeyboardButton(text="💼 Мои заметки", callback_data="my_notes")
     ]
     keyboard = types.InlineKeyboardMarkup(row_width=3)
     keyboard.add(*buttons)
@@ -109,7 +111,7 @@ async def new_notes_add(message: types.Message, state: FSMContext):
 async def new_notes_add(call: types.CallbackQuery) -> None:
     buttons = [
         types.InlineKeyboardButton(text="✍️ Редактировать", callback_data="edit_notes"),
-        types.InlineKeyboardButton(text="❌ Удалить", callback_data="delete_notes"),
+        types.InlineKeyboardButton(text="❌ Удалить", callback_data="delete_notes")
     ]
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(*buttons)
@@ -147,12 +149,42 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
 
-@dp.callback_query_handler(text="reminder_notes")
-async def event(call: types.CallbackQuery):
-    await call.message.answer("Выбор действия")
+
+@dp.callback_query_handler(text="weather")
+async def new_weather(call: types.CallbackQuery) -> None:
+    await call.message.answer("Привет! Напиши мне название города и я пришлю сводку погоды!")
+    await ProfilStatesGroup.weather.set()
+
+    @dp.message_handler(state=ProfilStatesGroup.weather)
+    async def get_weather(message: types.Message, state: FSMContext):
+        async with state.proxy() as data:  # Устанавливаем состояние ожидания
+            data["weather"] = message.text
+            try:
+                response = requests.get(
+                    f'https://api.openweathermap.org/data/2.5/weather?q={data["weather"]}&appid={os.getenv("open_weather_token")}&units=metric'
+                )
+                data = response.json()
+
+                city = data["name"]
+                cur_weather = data["main"]["temp"]
+                humidity = data["main"]["humidity"]
+                pressure = data["main"]["pressure"]
+                wind = data["wind"]["speed"]
+                sunrise_timestamp = datetime.datetime.fromtimestamp(data["sys"]["sunrise"])
+                sunset_timestamp = datetime.datetime.fromtimestamp(data["sys"]["sunset"])
+                length_of_the_day = sunset_timestamp - sunrise_timestamp
+
+                await message.reply(f"***{datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}***\n"
+                      f"Погода в городе: {city}\nТумпература: {cur_weather}C°\n"
+                      f"Влажность: {humidity}%\nДавление: {pressure} мм.рт.ст.\nВетер: {wind}\n"
+                      f"Восход солнца: {sunrise_timestamp}\nЗакат солнца: {sunset_timestamp}\nПродолжительность дня: {length_of_the_day}\n"
+                      f"Прекрасного дня!!!"
+                      )
+                await state.finish()
 
 
-
+            except Exception as ex:
+                await message.reply("Проверьте название города")
 
 
 
