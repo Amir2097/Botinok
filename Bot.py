@@ -39,8 +39,56 @@ async def cmd_random(message: types.Message):
                          reply_markup=kb.keyboard_cmd_random)
 
 @dp.callback_query_handler(text="botinok")
-async def new_notes_add(call: types.CallbackQuery) -> None:
-    pass
+async def botinok(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    await call.message.answer("👀 Хотите знать, что за БОТИНОК я?\n🛠 Реализую кучу функций!\n"
+                              "🤖 Буду вашим удобным помощником по рукой!\n"
+                              "📜 Инструкция по каждой функции внизу ⬇️👇", reply_markup=kb.keyboard_botinok)
+
+
+@dp.callback_query_handler(text="botinok_info_notes")
+async def botinok_info_notes(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    await call.message.answer("👞 БОТИНОК для заметок! 👞\n🗒 В меня вы можете записывать ваши заметки 🗒\n"
+                              "❗️ Как большие, так и не очень ❗\n"
+                              "🖊 Реализована возможность редактировать именно ваши заметки\n"
+                              "❌ Также можете удалить любую заметку! ❌\n"
+                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_botinok_info_notes)
+
+
+@dp.callback_query_handler(text="events_data_info")
+async def events_data_info(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    await call.message.answer("👞 Самая крутая способность БОТИНКА! 👞\n🎪 Если вы в раздумьях куда сходить? 🥊\n"
+                              "❗️ Тогда вам непременно ко мне❗\n"
+                              "🤖 Я подскажу куда сходить в вашем городе 🌃\n"
+                              "⌚️ Даже дам информацию на ближайшие 3 дня\n"
+                              "💜 Пользуйся, пока я добрый 💜\n"
+                              "⏪ Вернуться в стартовое меню /start 🔙")
+
+
+@dp.callback_query_handler(text="weather_info")
+async def weather_info(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    await call.message.answer("🏞 ПОГОДНЫЙ БОТИНОК! 🌅\n🗺 Информирую очень подробно о погоде в вашем городе!\n"
+                              "❗🌁 Вам нужно написать только свой город❗\n"
+                              "⏪ Вернуться в стартовое меню /start 🔙")
 
 
 @dp.callback_query_handler(text="botinok_start")
