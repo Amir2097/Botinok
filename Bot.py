@@ -76,7 +76,7 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                               "🤖 Я подскажу куда сходить в вашем городе 🌃\n"
                               "⌚️ Даже дам информацию на ближайшие 3 дня\n"
                               "💜 Пользуйся, пока я добрый 💜\n"
-                              "⏪ Вернуться в стартовое меню /start 🔙")
+                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_events_data_info)
 
 
 @dp.callback_query_handler(text="weather_info")
@@ -88,7 +88,7 @@ async def weather_info(call: types.CallbackQuery) -> None:
     """
     await call.message.answer("🏞 ПОГОДНЫЙ БОТИНОК! 🌅\n🗺 Информирую очень подробно о погоде в вашем городе!\n"
                               "❗🌁 Вам нужно написать только свой город❗\n"
-                              "⏪ Вернуться в стартовое меню /start 🔙")
+                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_weather_info)
 
 
 @dp.callback_query_handler(text="botinok_start")

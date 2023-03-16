@@ -21,6 +21,12 @@ keyboard_botinok.add(*buttons_botinok)
 keyboard_botinok_info_notes = types.InlineKeyboardMarkup()
 keyboard_botinok_info_notes.add(types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_start"))
 
+keyboard_events_data_info = types.InlineKeyboardMarkup()
+keyboard_events_data_info.add(types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"))
+
+keyboard_weather_info = types.InlineKeyboardMarkup()
+keyboard_weather_info.add(types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather"))
+
 buttons_send_random_value = [
         types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),
         types.InlineKeyboardButton(text="💼 Мои заметки", callback_data="my_notes")
