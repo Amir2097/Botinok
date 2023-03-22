@@ -1,10 +1,12 @@
 from sqlalchemy.orm import relationship, declarative_base
+from extraction import ext_events
 from extraction.ext_cityes import rec_db_cityes
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import sqlalchemy as sq
 import datetime
 import os
+
 
 load_dotenv()
 
@@ -47,6 +49,23 @@ class City(Base):
         return f'City {self.id}, {self.id_city}, {self.name}: {self.url}'
 
 
+class Event(Base):
+    __tablename__ = 'Event'
+    id = sq.Column(sq.Integer, primary_key=True)
+    date = sq.Column(sq.String(length=80))
+    tepe = sq.Column(sq.String(length=80))
+    genre = sq.Column(sq.String(length=80))
+    discription = sq.Column(sq.String(length=150))
+    poster = sq.Column(sq.String(length=150))
+    link = sq.Column(sq.String(length=150))
+    cityes_id = sq.Column(sq.Integer, sq.ForeignKey("City.id"), nullable=False)
+    cityes = relationship(City, backref="event")
+
+    def __str__(self):
+        return f'Event {self.id}, {self.date}, {self.tepe}, {self.genre},' \
+               f' {self.discription}, {self.poster}, {self.link}'
+
+
 def create_tables(engine):
     # Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
@@ -59,6 +78,11 @@ create_tables(engine)
 
 Session = sessionmaker(bind=engine)
 session = Session()
+
+
+def event_entry(ids):
+    data_event = ext_events.event_3day(ids)
+    print(data_event)
 
 
 def city_entry():
@@ -122,6 +146,9 @@ def notes_new(text_notes, user_id):
 
 
 def return_url(ids):
-    ext_city_db = session.query(User.city).filter(User.id_tg == ids).all()[0][0]
-    return session.query(City.url).filter(City.name == ext_city_db).all()[0][0]
+    ext_city_db = session.query(User).filter(User.id_tg == ids).first()
+    url_city_db = session.query(City).filter(City.name == ext_city_db.city).first()
+    return url_city_db.url
 
+
+event_entry(858035466)

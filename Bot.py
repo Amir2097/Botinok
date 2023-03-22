@@ -1,7 +1,7 @@
 import os
 import logging
 import keyboard as kb
-from extraction.weather import weather, weather_long
+from extraction.weather import weather
 from Database import session
 from dotenv import load_dotenv
 from aiogram.dispatcher import FSMContext
@@ -35,8 +35,10 @@ async def cmd_random(message: types.Message):
     """
     user_name = f"{message.from_user.first_name} {message.from_user.last_name}"
     user_entry(message.from_user.id, user_name, None, message.date)
-    await message.answer(f'Привет {message.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
-                         reply_markup=kb.keyboard_cmd_random)
+    await message.answer(
+        f'Привет {message.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
+        reply_markup=kb.keyboard_cmd_random)
+
 
 @dp.callback_query_handler(text="botinok")
 async def botinok(call: types.CallbackQuery) -> None:
