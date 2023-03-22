@@ -1,7 +1,7 @@
 import os
 import logging
 import keyboard as kb
-from extraction.weather import weather
+from extraction.weather import weather, weather_long
 from Database import session
 from dotenv import load_dotenv
 from aiogram.dispatcher import FSMContext
@@ -24,7 +24,7 @@ class ProfilStatesGroup(StatesGroup):
     city = State()
     edit = State()
     weather = State()
-
+    weather_long = State()
 
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
@@ -88,7 +88,7 @@ async def weather_info(call: types.CallbackQuery) -> None:
     """
     await call.message.answer("🏞 ПОГОДНЫЙ БОТИНОК! 🌅\n🗺 Информирую очень подробно о погоде в вашем городе!\n"
                               "❗🌁 Вам нужно написать только свой город❗\n"
-                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_weather_info)
+                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_weather_long)
 
 
 @dp.callback_query_handler(text="botinok_start")
@@ -264,6 +264,29 @@ async def new_weather(call: types.CallbackQuery) -> None:
             await state.finish()
 
 
+@dp.callback_query_handler(text="weather_long")
+async def new_weather(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    await call.message.answer("Привет! Напиши мне название города и я пришлю сводку погоды!")
+    await ProfilStatesGroup.weather_long.set()
+
+    @dp.message_handler(state=ProfilStatesGroup.weather_long)
+    async def get_weather(message: types.Message, state: FSMContext):
+        """
+
+        :param message:
+        :param state:
+        :return:
+        """
+        async with state.proxy() as data:  # Устанавливаем состояние ожидания
+            data["weather_long"] = message.text
+            for i in weather_long(data["weather_long"]):
+                await message.reply(i)
+            await state.finish()
 
 
 if __name__ == "__main__":

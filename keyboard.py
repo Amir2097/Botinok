@@ -24,8 +24,13 @@ keyboard_botinok_info_notes.add(types.InlineKeyboardButton(text="📋 БОТИН
 keyboard_events_data_info = types.InlineKeyboardMarkup()
 keyboard_events_data_info.add(types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"))
 
-keyboard_weather_info = types.InlineKeyboardMarkup()
-keyboard_weather_info.add(types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather"))
+buttons_weather = [
+        types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather"),
+        types.InlineKeyboardButton(text="👞 ПРОГНОЗ НА 5 ДНЕЙ", callback_data="weather_long")
+    ]
+keyboard_weather_long = types.InlineKeyboardMarkup(row_width=2)
+keyboard_weather_long.add(*buttons_weather)
+
 
 buttons_send_random_value = [
         types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),

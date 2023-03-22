@@ -5,6 +5,34 @@ import datetime
 
 load_dotenv()
 
+def weather_long(city):
+    """
+    :return:
+    """
+    try:
+        response = requests.get(
+            f'https://api.openweathermap.org/data/2.5/forecast?q={city}&appid={os.getenv("open_weather_token")}&units=metric&lang=ru'
+        )
+        data = response.json()
+        new_list = []
+        for key in data['list']:
+            if key['dt_txt'][11:13] == '06':
+                new_list.append(f"⌛️ Утром {key['dt_txt']} ⏳\n"
+                        f"🌈 Погода в городе: {city}\n🌡 Температура: {key['main']['temp']}C°\n"
+                        f"💦 Влажность: {key['main']['humidity']}%\n🎚 Давление: {key['main']['pressure']} мм.рт.ст.\n🌪 Ветер: {key['wind']['speed']}\n"
+                        f"💥 Прекрасного ⭐️"
+                        )
+            elif key['dt_txt'][11:13] == '21':
+                new_list.append(f"⌛️ Вечером {key['dt_txt']} ⏳\n"
+                        f"🌈 Погода в городе: {city}\n🌡 Температура: {key['main']['temp']}C°\n"
+                        f"💦 Влажность: {key['main']['humidity']}%\n🎚 Давление: {key['main']['pressure']} мм.рт.ст.\n🌪 Ветер: {key['wind']['speed']}\n"
+                        f"💥 Прекрасного ⭐️"
+                        )
+        return new_list
+
+    except Exception as ex:
+        return ("Проверьте название города")
+
 
 def weather(data):
     """
@@ -35,3 +63,5 @@ def weather(data):
 
     except Exception as ex:
         return ("Проверьте название города")
+
+print(weather_long('Челябинск'))
