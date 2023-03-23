@@ -1,11 +1,9 @@
 import datetime
 import requests
-from Database import return_url
 
 
-def event_all(ids):
-    url = return_url(ids)
-    url = f"https://www.afisha.ru{url}"
+def event_all(urls):
+    url = f"https://www.afisha.ru{urls}"
     payload = {}
     headers = {
         'Accept': 'application/json',
@@ -17,11 +15,10 @@ def event_all(ids):
     print(response.json())
 
 
-def event_3day(ids):
-    url = return_url(ids)
+def event_3day(urls):
     date_search = f"{datetime.datetime.now().strftime('%d')}-{datetime.datetime.now().strftime('%m')}_" \
                   f"{int(datetime.datetime.now().strftime('%d')) + 2}-{datetime.datetime.now().strftime('%m')}"
-    url = f"https://www.afisha.ru{url}events/{date_search}/"
+    url = f"https://www.afisha.ru{urls}events/{date_search}/"
     payload = {}
     headers = {
         'Accept': 'application/json',

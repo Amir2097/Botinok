@@ -1,12 +1,11 @@
 from sqlalchemy.orm import relationship, declarative_base
-# from extraction import ext_events
+from extraction.ext_events import event_3day
 from extraction.ext_cityes import rec_db_cityes
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import sqlalchemy as sq
 import datetime
 import os
-
 
 load_dotenv()
 
@@ -52,6 +51,7 @@ class City(Base):
 class Event(Base):
     __tablename__ = 'Event'
     id = sq.Column(sq.Integer, primary_key=True)
+    last_update = sq.Column(sq.DateTime, default=datetime.datetime.now)
     date = sq.Column(sq.String(length=80))
     tepe = sq.Column(sq.String(length=80))
     genre = sq.Column(sq.String(length=80))
@@ -80,9 +80,34 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-# def event_entry(ids):
-#     data_event = ext_events.event_3day(ids)
-#     print(data_event)
+def event_entry(ids):
+    """
+    Функция добавления мероприятий проводящихся в городе
+    :param ids: ID пользователя
+    :return: Заполнение базы данных мероприятий по определенному городу
+    """
+    url = return_url(ids)
+    data_event = event_3day(url)
+    user_ids = session.query(User.city).filter(User.id_tg == ids).all()[0][0]
+    city_id = session.query(City.id).filter(City.name == user_ids).all()[0][0]
+    for data_event_list in data_event:
+        genres_list = data_event_list['genre']
+        genres = ', '.join(genres_list)
+
+        if genres == "":
+            genres = "None"
+
+        new_event = Event(last_update=datetime.datetime.now(),
+                          date=data_event_list['data'][0],
+                          tepe=data_event_list['type'][0],
+                          genre=genres,
+                          discription=data_event_list['discription'][0],
+                          poster=data_event_list['poster'][0],
+                          link=data_event_list['link'][0],
+                          cityes_id=city_id)
+
+        session.add(new_event)
+        session.commit()
 
 
 def city_entry():
@@ -149,6 +174,3 @@ def return_url(ids):
     ext_city_db = session.query(User).filter(User.id_tg == ids).first()
     url_city_db = session.query(City).filter(City.name == ext_city_db.city).first()
     return url_city_db.url
-
-
-# event_entry(858035466)
