@@ -71,5 +71,4 @@ def event_3day(urls):
         event_dict["link"] = event_list_url
 
         all_event_list.append(event_dict)
-
     return all_event_list

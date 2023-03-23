@@ -51,7 +51,7 @@ class City(Base):
 class Event(Base):
     __tablename__ = 'Event'
     id = sq.Column(sq.Integer, primary_key=True)
-    last_update = sq.Column(sq.DateTime, default=datetime.datetime.now)
+    last_update = sq.Column(sq.DateTime, default=datetime.datetime.utcnow)
     date = sq.Column(sq.String(length=80))
     tepe = sq.Column(sq.String(length=80))
     genre = sq.Column(sq.String(length=80))
@@ -90,24 +90,41 @@ def event_entry(ids):
     data_event = event_3day(url)
     user_ids = session.query(User.city).filter(User.id_tg == ids).all()[0][0]
     city_id = session.query(City.id).filter(City.name == user_ids).all()[0][0]
-    for data_event_list in data_event:
-        genres_list = data_event_list['genre']
-        genres = ', '.join(genres_list)
+    standart_date_now = datetime.datetime.now()
+    last_update_date = session.query(Event.last_update).filter(Event.cityes_id == city_id).first()
+    count_city = session.query(Event.last_update).filter(Event.cityes_id == city_id).count()
+    delta_list = []
 
-        if genres == "":
-            genres = "None"
+    try:
+        for tiiime in last_update_date:
+            delta_time = standart_date_now - tiiime
+            delta_list.append(delta_time.seconds)
+    except TypeError:
+        delta_list.append(86400)
 
-        new_event = Event(last_update=datetime.datetime.now(),
-                          date=data_event_list['data'][0],
-                          tepe=data_event_list['type'][0],
-                          genre=genres,
-                          discription=data_event_list['discription'][0],
-                          poster=data_event_list['poster'][0],
-                          link=data_event_list['link'][0],
-                          cityes_id=city_id)
+    if delta_list[0] > 86400 or count_city == 0:
 
-        session.add(new_event)
-        session.commit()
+        for data_event_list in data_event:
+            print(data_event_list)
+            genres_list = data_event_list['genre']
+            genres = ', '.join(genres_list)
+
+            if genres == "":
+                genres = "None"
+
+            new_event = Event(last_update=standart_date_now,
+                              date=data_event_list['data'][0],
+                              tepe=data_event_list['type'][0],
+                              genre=genres,
+                              discription=data_event_list['discription'][0],
+                              poster=data_event_list['poster'][0],
+                              link=data_event_list['link'][0],
+                              cityes_id=city_id)
+
+            session.add(new_event)
+            session.commit()
+    else:
+        return f"Обновление не требуется. Последнее обновление {delta_list[0]} секунд назад"
 
 
 def city_entry():
@@ -174,3 +191,7 @@ def return_url(ids):
     ext_city_db = session.query(User).filter(User.id_tg == ids).first()
     url_city_db = session.query(City).filter(City.name == ext_city_db.city).first()
     return url_city_db.url
+
+
+# city_entry()
+print(event_entry(858035466))
