@@ -1,7 +1,7 @@
 import os
 import logging
 import keyboard as kb
-from extraction.weather import weather
+from extraction.weather import weather, weather_long
 from Database import session
 from dotenv import load_dotenv
 from aiogram.dispatcher import FSMContext
@@ -29,9 +29,7 @@ class ProfilStatesGroup(StatesGroup):
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
     """
-
-    :param message:
-    :return:
+    Стартовое приветствие пользователя с кнопками на реализованные функции
     """
     user_name = f"{message.from_user.first_name} {message.from_user.last_name}"
     user_entry(message.from_user.id, user_name, None, message.date)
@@ -40,17 +38,7 @@ async def cmd_random(message: types.Message):
         reply_markup=kb.keyboard_cmd_random)
 
 
-@dp.callback_query_handler(text="botinok")
-async def botinok(call: types.CallbackQuery) -> None:
-    """
-
-    :param call:
-    :return:
-    """
-    await call.message.answer("👀 Хотите знать, что за БОТИНОК я?\n🛠 Реализую кучу функций!\n"
-                              "🤖 Буду вашим удобным помощником по рукой!\n"
-                              "📜 Инструкция по каждой функции внизу ⬇️👇", reply_markup=kb.keyboard_botinok)
-
+################################ЗАМЕТКИ########################################
 
 @dp.callback_query_handler(text="botinok_info_notes")
 async def botinok_info_notes(call: types.CallbackQuery) -> None:
@@ -63,98 +51,7 @@ async def botinok_info_notes(call: types.CallbackQuery) -> None:
                               "❗️ Как большие, так и не очень ❗\n"
                               "🖊 Реализована возможность редактировать именно ваши заметки\n"
                               "❌ Также можете удалить любую заметку! ❌\n"
-                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_botinok_info_notes)
-
-
-@dp.callback_query_handler(text="events_data_info")
-async def events_data_info(call: types.CallbackQuery) -> None:
-    """
-
-    :param call:
-    :return:
-    """
-    await call.message.answer("👞 Самая крутая способность БОТИНКА! 👞\n🎪 Если вы в раздумьях куда сходить? 🥊\n"
-                              "❗️ Тогда вам непременно ко мне❗\n"
-                              "🤖 Я подскажу куда сходить в вашем городе 🌃\n"
-                              "⌚️ Даже дам информацию на ближайшие 3 дня\n"
-                              "💜 Пользуйся, пока я добрый 💜\n"
-                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_events_data_info)
-
-
-@dp.callback_query_handler(text="weather_info")
-async def weather_info(call: types.CallbackQuery) -> None:
-    """
-
-    :param call:
-    :return:
-    """
-    await call.message.answer("🏞 ПОГОДНЫЙ БОТИНОК! 🌅\n🗺 Информирую очень подробно о погоде в вашем городе!\n"
-                              "❗🌁 Вам нужно написать только свой город❗\n"
-                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_weather_long)
-
-
-@dp.callback_query_handler(text="botinok_start")
-async def send_random_value(call: types.CallbackQuery):
-    """
-
-    :param call:
-    :return:
-    """
-    await call.message.answer("БОТИНОК для ваших заметок.👞 Всегда под рукой!🤝"
-                              "В меня вы можете записать все что угодно!🕵️‍♂️🧠",
-                              reply_markup=kb.keyboard_send_random_value)
-
-
-@dp.callback_query_handler(text="events_data")
-async def event(call: types.CallbackQuery):
-    """
-
-    :param call:
-    :return:
-    """
-    await call.message.answer("Выбор действия", reply_markup=kb.keyboard_event)
-
-    @dp.callback_query_handler(text="ext_data_event")
-    async def event_settings(call: types.CallbackQuery):
-        """
-
-        :param call:
-        :return:
-        """
-        pass
-
-    @dp.callback_query_handler(text="setting")
-    async def event_settings(call: types.CallbackQuery):
-        """
-
-        :param call:
-        :return:
-        """
-        await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=kb.keyboard_event_settings)
-
-        @dp.callback_query_handler(text="city_edit")
-        async def event_edit_city(call: types.CallbackQuery) -> None:
-            """
-
-            :param call:
-            :return:
-            """
-            await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
-            await ProfilStatesGroup.city.set()
-
-        @dp.message_handler(state=ProfilStatesGroup.city)
-        async def event_city(message: types.Message, state: FSMContext):
-            """
-
-            :param message:
-            :param state:
-            :return:
-            """
-            async with state.proxy() as data:  # Устанавливаем состояние ожидания
-                data['city'] = message.text
-                await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
-            await state.finish()
-
+                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_send_random_value)
 
 @dp.callback_query_handler(text="new_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
@@ -194,7 +91,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
     subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
     subq_my_notes = session.query(Notes).filter(Notes.user_id == subq.id).all()
     for data in subq_my_notes:
-        await call.message.answer(f'⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n📝 Ваша заметка:\n'
+        await call.message.answer(f'⌛️ {data.created_date.strftime("%d-%m %H:%M")}\n'
                                   f'📋 {data.text_notes}', reply_markup=kb.keyboard_new_notes_add)
 
     @dp.callback_query_handler(text="edit_notes")
@@ -242,6 +139,80 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
 
+#################################################################
+
+####################МЕРОПРИЯТИЯ##################################
+
+@dp.callback_query_handler(text="events_data")
+async def events_data_info(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    await call.message.answer("👞 Самая крутая способность БОТИНКА! 👞\n🎪 Если вы в раздумьях куда сходить? 🥊\n"
+                              "❗️ Тогда вам непременно ко мне❗\n"
+                              "🤖 Я подскажу куда сходить в вашем городе 🌃\n"
+                              "⌚️ Даже дам информацию на ближайшие 3 дня\n"
+                              "💜 Пользуйся, пока я добрый 💜\n"
+                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_event)
+
+    @dp.callback_query_handler(text="ext_data_event")
+    async def event_settings(call: types.CallbackQuery):
+        """
+
+        :param call:
+        :return:
+        """
+        pass
+
+    @dp.callback_query_handler(text="setting")
+    async def event_settings(call: types.CallbackQuery):
+        """
+
+        :param call:
+        :return:
+        """
+        await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=kb.keyboard_event_settings)
+
+        @dp.callback_query_handler(text="city_edit")
+        async def event_edit_city(call: types.CallbackQuery) -> None:
+            """
+
+            :param call:
+            :return:
+            """
+            await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
+            await ProfilStatesGroup.city.set()
+
+        @dp.message_handler(state=ProfilStatesGroup.city)
+        async def event_city(message: types.Message, state: FSMContext):
+            """
+
+            :param message:
+            :param state:
+            :return:
+            """
+            async with state.proxy() as data:  # Устанавливаем состояние ожидания
+                data['city'] = message.text
+                await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
+            await state.finish()
+
+##############################################################################
+
+############################ПОГОДА############################################
+
+@dp.callback_query_handler(text="weather_start")
+async def weather_info(call: types.CallbackQuery) -> None:
+    """
+
+    :param call:
+    :return:
+    """
+    await call.message.answer("🏞 ПОГОДНЫЙ БОТИНОК! 🌅\n🗺 Информирую очень подробно о погоде в вашем городе!\n"
+                              "❗🌁 Вам нужно написать только свой город❗\n"
+                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_weather_long)
+
 @dp.callback_query_handler(text="weather")
 async def new_weather(call: types.CallbackQuery) -> None:
     """
@@ -273,7 +244,7 @@ async def new_weather(call: types.CallbackQuery) -> None:
     :param call:
     :return:
     """
-    await call.message.answer("Привет! Напиши мне название города и я пришлю сводку погоды!")
+    await call.message.answer("Привет! Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!")
     await ProfilStatesGroup.weather_long.set()
 
     @dp.message_handler(state=ProfilStatesGroup.weather_long)
@@ -290,6 +261,7 @@ async def new_weather(call: types.CallbackQuery) -> None:
                 await message.reply(i)
             await state.finish()
 
+###
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)

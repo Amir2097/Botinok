@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship, declarative_base
-from extraction import ext_events
+# from extraction import ext_events
 from extraction.ext_cityes import rec_db_cityes
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
@@ -80,9 +80,9 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 
-def event_entry(ids):
-    data_event = ext_events.event_3day(ids)
-    print(data_event)
+# def event_entry(ids):
+#     data_event = ext_events.event_3day(ids)
+#     print(data_event)
 
 
 def city_entry():
@@ -151,4 +151,4 @@ def return_url(ids):
     return url_city_db.url
 
 
-event_entry(858035466)
+# event_entry(858035466)

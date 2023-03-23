@@ -2,30 +2,15 @@ from aiogram import types
 
 
 buttons_cmd_random = [
-        types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_start"),
-        types.InlineKeyboardButton(text="👞 БОТИНОК", callback_data="botinok"),
+        types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_info_notes"),
         types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"),
-        types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather")
+        types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather_start")
     ]
 keyboard_cmd_random = types.InlineKeyboardMarkup(row_width=2)
 keyboard_cmd_random.add(*buttons_cmd_random)
 
-buttons_botinok = [
-        types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_info_notes"),
-        types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data_info"),
-        types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather_info")
-    ]
-keyboard_botinok = types.InlineKeyboardMarkup(row_width=2)
-keyboard_botinok.add(*buttons_botinok)
-
-keyboard_botinok_info_notes = types.InlineKeyboardMarkup()
-keyboard_botinok_info_notes.add(types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_start"))
-
-keyboard_events_data_info = types.InlineKeyboardMarkup()
-keyboard_events_data_info.add(types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"))
-
 buttons_weather = [
-        types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather"),
+        types.InlineKeyboardButton(text="🌪 Погода сейчас", callback_data="weather"),
         types.InlineKeyboardButton(text="👞 ПРОГНОЗ НА 5 ДНЕЙ", callback_data="weather_long")
     ]
 keyboard_weather_long = types.InlineKeyboardMarkup(row_width=2)

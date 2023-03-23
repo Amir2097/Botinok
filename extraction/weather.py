@@ -64,4 +64,4 @@ def weather(data):
     except Exception as ex:
         return ("Проверьте название города")
 
-print(weather_long('Челябинск'))
+# print(weather_long('Челябинск'))
