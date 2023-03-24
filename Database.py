@@ -104,6 +104,11 @@ def event_entry(ids):
 
     if delta_list[0] > 86400 or count_city == 0:
 
+        if count_city > 0:
+            session.query(Event).filter(Event.cityes_id == city_id).delete()
+            session.commit()
+            print("DELETED")
+
         for data_event_list in data_event:
             print(data_event_list)
             genres_list = data_event_list['genre']
@@ -194,4 +199,4 @@ def return_url(ids):
 
 
 # city_entry()
-print(event_entry(858035466))
+# print(event_entry(858035466))
