@@ -8,7 +8,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from Database import User, Notes, user_entry, notes_new, city_edit
+from Database import User, Notes, user_entry, notes_new, city_edit, conclusion_event
 
 load_dotenv()
 
@@ -25,6 +25,7 @@ class ProfilStatesGroup(StatesGroup):
     edit = State()
     weather = State()
     weather_long = State()
+
 
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
@@ -52,6 +53,7 @@ async def botinok_info_notes(call: types.CallbackQuery) -> None:
                               "🖊 Реализована возможность редактировать именно ваши заметки\n"
                               "❌ Также можете удалить любую заметку! ❌\n"
                               "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_send_random_value)
+
 
 @dp.callback_query_handler(text="new_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
@@ -139,6 +141,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
 
+
 #################################################################
 
 ####################МЕРОПРИЯТИЯ##################################
@@ -159,12 +162,19 @@ async def events_data_info(call: types.CallbackQuery) -> None:
 
     @dp.callback_query_handler(text="ext_data_event")
     async def event_settings(call: types.CallbackQuery):
-        """
+        events_for_user = conclusion_event(call.from_user.id)
+        for pars_event in events_for_user:
+            buttons_afisha = [types.InlineKeyboardButton(text="🔗Страница мероприятия", url=f"{pars_event[4]}")]
+            keyboard_afisha = types.InlineKeyboardMarkup(row_width=3)
+            keyboard_afisha.add(*buttons_afisha)
 
-        :param call:
-        :return:
-        """
-        pass
+            try:
+                await call.message.answer_photo(pars_event[3], caption=
+                f"🗓Дата проведения мероприятия - {pars_event[0]}\n"
+                f"🎵Жанр - {pars_event[1]}\n"
+                f"☑️Название - {pars_event[2]}\n", reply_markup=keyboard_afisha)
+            except:
+                pass
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
@@ -198,6 +208,7 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                 await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
             await state.finish()
 
+
 ##############################################################################
 
 ############################ПОГОДА############################################
@@ -212,6 +223,7 @@ async def weather_info(call: types.CallbackQuery) -> None:
     await call.message.answer("🏞 ПОГОДНЫЙ БОТИНОК! 🌅\n🗺 Информирую очень подробно о погоде в вашем городе!\n"
                               "❗🌁 Вам нужно написать только свой город❗\n"
                               "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_weather_long)
+
 
 @dp.callback_query_handler(text="weather")
 async def new_weather(call: types.CallbackQuery) -> None:
@@ -244,7 +256,8 @@ async def new_weather(call: types.CallbackQuery) -> None:
     :param call:
     :return:
     """
-    await call.message.answer("Привет! Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!")
+    await call.message.answer(
+        "Привет! Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!")
     await ProfilStatesGroup.weather_long.set()
 
     @dp.message_handler(state=ProfilStatesGroup.weather_long)
@@ -260,6 +273,7 @@ async def new_weather(call: types.CallbackQuery) -> None:
             for i in weather_long(data["weather_long"]):
                 await message.reply(i)
             await state.finish()
+
 
 ###
 

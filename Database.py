@@ -107,10 +107,8 @@ def event_entry(ids):
         if count_city > 0:
             session.query(Event).filter(Event.cityes_id == city_id).delete()
             session.commit()
-            print("Deleted")
 
         for data_event_list in data_event:
-            print(data_event_list)
             genres_list = data_event_list['genre']
             genres = ', '.join(genres_list)
 
@@ -135,6 +133,21 @@ def event_entry(ids):
         return False
 
 
+def conclusion_event(ids):
+    """
+    Функция вывода информации о проводимых мероприятиях в определенном городе конечному пользователю
+    :param ids: Телеграм ID пользователя
+    :return: Список со всеми мероприятиями
+    """
+    event_entry(ids)  # При каждом запросе дергаем данную функцию для обновления информации
+    user_ids = session.query(User.city).filter(User.id_tg == ids).all()[0][0]
+    city_id = session.query(City.id).filter(City.name == user_ids).all()[0][0]
+    list_event_user = session.query(Event.date, Event.genre, Event.discription, Event.poster, Event.link) \
+        .filter(Event.cityes_id == city_id).all()
+
+    return list_event_user
+
+
 def city_entry():
     """Функция заполнения БД городов с сайта afisha.ru"""
     for enter_city in rec_db_cityes():
@@ -156,7 +169,7 @@ def user_entry(ids, name, cities, rdate):
 
     user_verification = session.query(User.id).filter(User.id_tg == ids)
     if session.query(user_verification.exists()).scalar():
-        print('Its good')
+        pass
     else:
         new_user = User(id_tg=ids,
                         first_name=name,
@@ -203,3 +216,4 @@ def return_url(ids):
 
 # city_entry()
 # print(event_entry(858035466))
+# print(conclusion_event(858035466))
