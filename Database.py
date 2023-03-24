@@ -202,4 +202,4 @@ def return_url(ids):
 
 
 # city_entry()
-print(event_entry(858035466))
+# print(event_entry(858035466))
