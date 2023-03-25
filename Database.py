@@ -194,7 +194,12 @@ def city_edit(ids, cities="Москва"):
             data_edit = session.query(User).get(user_ids)
             data_edit.city = cities
             session.add(data_edit)
-            session.commit()
+
+            try:
+                session.commit()
+            except:
+                session.rollback()
+
             return "Информация о городе обновлена"
         else:
             return "Данный пользователь отсутствует в базе"
