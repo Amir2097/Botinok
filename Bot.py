@@ -40,11 +40,11 @@ async def cmd_random(message: types.Message):
         reply_markup=kb.keyboard_cmd_random)
 
 
-@dp.callback_query_handler(lambda call: call.data == "returnstart")
+@dp.callback_query_handler(text="returnstart")
 async def returnstart(call: types.CallbackQuery) -> None:
-    call_id = call.data
-    print(call_id)
-    await cmd_random(call_id)
+    await call.message.answer(
+        f'Привет {call.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
+        reply_markup=kb.keyboard_cmd_random)
 
 
 ################################ЗАМЕТКИ########################################
@@ -263,7 +263,7 @@ async def new_weather(call: types.CallbackQuery) -> None:
 
     @dp.message_handler(state=ProfilStatesGroup.weather_long)
     async def get_weather(message: types.Message, state: FSMContext):
-        """
+        """-
 
         :param message:
         :param state:
