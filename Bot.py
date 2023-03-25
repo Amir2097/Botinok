@@ -149,7 +149,6 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
 
-
 #################################################################
 
 ####################МЕРОПРИЯТИЯ##################################

@@ -1,6 +1,8 @@
+from pprint import pprint
+
 from sqlalchemy.orm import relationship, declarative_base
-from extraction.ext_events import event_3day
 from extraction.ext_cityes import rec_db_cityes
+from extraction.ext_events import event_3day
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import sqlalchemy as sq
@@ -224,6 +226,25 @@ def return_city(ids):
     name_city_db = session.query(City.name).filter(City.name == ext_city_db.city).first()
     return name_city_db
 
+
+def rerurn_alp_cuty():
+    alphabet = ''.join([chr(i) for i in range(ord('а'), ord('а') + 32)])
+    city_sort_dict = {}
+
+    for alphabet_one in alphabet:
+        cyty_for_alp = session.query(City.name).filter(City.name.ilike(alphabet_one + '%')).all()
+        city_sort_list = []
+        for sorting_city_alpha in cyty_for_alp:
+            city_sort_list.append(sorting_city_alpha[0])
+
+        city_sort_dict[alphabet_one] = city_sort_list
+    del city_sort_dict[]
+
+
+    print(city_sort_dict)
+
+
 # city_entry()
 # print(event_entry(858035466))
 # print(conclusion_event(858035466))
+rerurn_alp_cuty()
