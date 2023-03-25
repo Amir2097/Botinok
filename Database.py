@@ -230,7 +230,6 @@ def return_city(ids):
 def rerurn_alp_cuty():
     alphabet = ''.join([chr(i) for i in range(ord('а'), ord('а') + 32)])
     city_sort_dict = {}
-
     for alphabet_one in alphabet:
         cyty_for_alp = session.query(City.name).filter(City.name.ilike(alphabet_one + '%')).all()
         city_sort_list = []
@@ -238,10 +237,14 @@ def rerurn_alp_cuty():
             city_sort_list.append(sorting_city_alpha[0])
 
         city_sort_dict[alphabet_one] = city_sort_list
-    del city_sort_dict[]
 
-
+    for keys_city in city_sort_dict.copy():
+        if not city_sort_dict[keys_city]:
+            city_sort_dict.pop(keys_city)
     print(city_sort_dict)
+
+
+
 
 
 # city_entry()
