@@ -27,7 +27,8 @@ keyboard_send_random_value.add(*buttons_send_random_value)
 
 buttons_event = [
         types.InlineKeyboardButton(text="⚙️ Настройки", callback_data="setting"),
-        types.InlineKeyboardButton(text="🎬 Все мероприятия", callback_data="ext_data_event")
+        types.InlineKeyboardButton(text="🎬 Все мероприятия", callback_data="ext_data_event"),
+        types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
     ]
 keyboard_event = types.InlineKeyboardMarkup(row_width=3)
 keyboard_event.add(*buttons_event)

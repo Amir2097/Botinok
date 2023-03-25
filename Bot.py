@@ -40,6 +40,13 @@ async def cmd_random(message: types.Message):
         reply_markup=kb.keyboard_cmd_random)
 
 
+@dp.callback_query_handler(lambda call: call.data == "returnstart")
+async def returnstart(call: types.CallbackQuery) -> None:
+    call_id = call.data
+    print(call_id)
+    await cmd_random(call_id)
+
+
 ################################ЗАМЕТКИ########################################
 
 @dp.callback_query_handler(text="botinok_info_notes")
