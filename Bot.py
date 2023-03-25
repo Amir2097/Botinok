@@ -1,3 +1,4 @@
+import datetime
 import os
 import logging
 import keyboard as kb
@@ -170,7 +171,8 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                 f"☑️Название - {pars_event[2]}\n", reply_markup=keyboard_afisha)
             except:
                 with open("save_error.txt", "a") as open_file_error:
-                    open_file_error.write(f"Пользователь - {call.from_user.id}.  "
+                    open_file_error.write(f"{datetime.datetime.now()}.  "
+                                          f"Пользователь - {call.from_user.id}.  "
                                           f"Ошибка - {pars_event[3]}.  "
                                           f"Ссылка - {pars_event[4]}\n")
 
