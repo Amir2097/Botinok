@@ -26,17 +26,18 @@ keyboard_send_random_value.add(*buttons_send_random_value)
 
 
 buttons_event = [
-        types.InlineKeyboardButton(text="Настройки", callback_data="setting"),
-        types.InlineKeyboardButton(text="Данные", callback_data="ext_data_event")
+        types.InlineKeyboardButton(text="⚙️ Настройки", callback_data="setting"),
+        types.InlineKeyboardButton(text="🎬 Все мероприятия", callback_data="ext_data_event")
     ]
 keyboard_event = types.InlineKeyboardMarkup(row_width=3)
 keyboard_event.add(*buttons_event)
 
 
 buttons_event_settings = [
-            types.InlineKeyboardButton(text="Редактировать город", callback_data="city_edit"),
+        types.InlineKeyboardButton(text="✍️ Редактировать город", callback_data="city_edit"),
+        types.InlineKeyboardButton(text="🏘️ НАЗАД", callback_data="events_data")
         ]
-keyboard_event_settings = types.InlineKeyboardMarkup(row_width=3)
+keyboard_event_settings = types.InlineKeyboardMarkup(row_width=1)
 keyboard_event_settings.add(*buttons_event_settings)
 
 

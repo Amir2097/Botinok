@@ -214,6 +214,11 @@ def return_url(ids):
     return url_city_db.url
 
 
+def return_city(ids):
+    ext_city_db = session.query(User).filter(User.id_tg == ids).first()
+    name_city_db = session.query(City.name).filter(City.name == ext_city_db.city).first()
+    return name_city_db
+
 # city_entry()
 # print(event_entry(858035466))
 # print(conclusion_event(858035466))

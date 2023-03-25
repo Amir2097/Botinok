@@ -8,7 +8,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from Database import User, Notes, user_entry, notes_new, city_edit, conclusion_event
+from Database import User, Notes, user_entry, notes_new, city_edit, conclusion_event, return_city
 
 load_dotenv()
 
@@ -148,11 +148,6 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
 
 @dp.callback_query_handler(text="events_data")
 async def events_data_info(call: types.CallbackQuery) -> None:
-    """
-
-    :param call:
-    :return:
-    """
     await call.message.answer("👞 Самая крутая способность БОТИНКА! 👞\n🎪 Если вы в раздумьях куда сходить? 🥊\n"
                               "❗️ Тогда вам непременно ко мне❗\n"
                               "🤖 Я подскажу куда сходить в вашем городе 🌃\n"
@@ -174,35 +169,25 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                 f"🎵Жанр - {pars_event[1]}\n"
                 f"☑️Название - {pars_event[2]}\n", reply_markup=keyboard_afisha)
             except:
-                pass
+                with open("save_error.txt", "a") as open_file_error:
+                    open_file_error.write(f"Пользователь - {call.from_user.id}.  "
+                                          f"Ошибка - {pars_event[3]}.  "
+                                          f"Ссылка - {pars_event[4]}\n")
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
-        """
-
-        :param call:
-        :return:
-        """
-        await call.message.answer("Настройки параметров поиска мероприятий", reply_markup=kb.keyboard_event_settings)
+        await call.message.answer("🏛️Меню настройки поиска и отображения мероприятий проводимых в Вашем городе.\n\n"
+                                  "Текущие настройки:\n"
+                                  f"🏙город - {return_city(call.from_user.id)[0]}",
+                                  reply_markup=kb.keyboard_event_settings)
 
         @dp.callback_query_handler(text="city_edit")
         async def event_edit_city(call: types.CallbackQuery) -> None:
-            """
-
-            :param call:
-            :return:
-            """
             await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
             await ProfilStatesGroup.city.set()
 
         @dp.message_handler(state=ProfilStatesGroup.city)
         async def event_city(message: types.Message, state: FSMContext):
-            """
-
-            :param message:
-            :param state:
-            :return:
-            """
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['city'] = message.text
                 await message.answer(city_edit(message.from_user.id, data['city']) + "📌")

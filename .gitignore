@@ -1,3 +1,4 @@
 .env
 venv
 /tests/testbd.py
+/save_error.txt
