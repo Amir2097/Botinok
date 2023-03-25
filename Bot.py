@@ -185,9 +185,16 @@ async def events_data_info(call: types.CallbackQuery) -> None:
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
+
+        try:
+            set_city = return_city(call.from_user.id)[0]
+        except TypeError:
+            set_city = "❗❗❗ ГОРОД НЕ УСТАНОВЛЕН ❗❗❗"
+
+
         await call.message.answer("🏛️Меню настройки поиска и отображения мероприятий проводимых в Вашем городе.\n\n"
                                   "Текущие настройки:\n"
-                                  f"🏙город - {return_city(call.from_user.id)[0]}",
+                                  f"🏙город - {set_city}",
                                   reply_markup=kb.keyboard_event_settings)
 
         @dp.callback_query_handler(text="city_edit")
