@@ -149,6 +149,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
 
+
 #################################################################
 
 ####################МЕРОПРИЯТИЯ##################################
@@ -165,6 +166,9 @@ async def events_data_info(call: types.CallbackQuery) -> None:
     @dp.callback_query_handler(text="ext_data_event")
     async def event_settings(call: types.CallbackQuery):
         events_for_user = conclusion_event(call.from_user.id)
+        buttons_finish = [types.InlineKeyboardButton(text="Назад", callback_data="events_data")]
+        keyboard_finish = types.InlineKeyboardMarkup(row_width=1)
+        keyboard_finish.add(*buttons_finish)
         for pars_event in events_for_user:
             buttons_afisha = [types.InlineKeyboardButton(text="🔗Страница мероприятия", url=f"{pars_event[4]}")]
             keyboard_afisha = types.InlineKeyboardMarkup(row_width=3)
@@ -175,12 +179,15 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                 f"🗓Дата проведения мероприятия - {pars_event[0]}\n"
                 f"🎵Жанр - {pars_event[1]}\n"
                 f"☑️Название - {pars_event[2]}\n", reply_markup=keyboard_afisha)
+
             except:
                 with open("save_error.txt", "a") as open_file_error:
                     open_file_error.write(f"{datetime.datetime.now()}.  "
                                           f"Пользователь - {call.from_user.id}.  "
                                           f"Ошибка - {pars_event[3]}.  "
                                           f"Ссылка - {pars_event[4]}\n")
+
+        await call.message.answer("Вывод завершен", reply_markup=keyboard_finish)
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
@@ -189,7 +196,6 @@ async def events_data_info(call: types.CallbackQuery) -> None:
             set_city = return_city(call.from_user.id)[0]
         except TypeError:
             set_city = "❗❗❗ ГОРОД НЕ УСТАНОВЛЕН ❗❗❗"
-
 
         await call.message.answer("🏛️Меню настройки поиска и отображения мероприятий проводимых в Вашем городе.\n\n"
                                   "Текущие настройки:\n"
