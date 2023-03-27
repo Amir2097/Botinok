@@ -235,48 +235,74 @@ async def new_weather(call: types.CallbackQuery) -> None:
     :param call:
     :return:
     """
-    await call.message.answer("Привет! Напиши мне название города и я пришлю сводку погоды!")
-    await ProfilStatesGroup.weather.set()
+    await call.message.answer("Привет! Выдаю сводку погоды сейчас в твоем городе! Но есть возможность выбрать другой город.",
+                              reply_markup=kb.keyboard_weather_another)
+    await call.message.answer(weather(return_city(call.from_user.id)[0]))
 
-    @dp.message_handler(state=ProfilStatesGroup.weather)
-    async def get_weather(message: types.Message, state: FSMContext):
+    @dp.callback_query_handler(text="weather_city")
+    async def new_weather(call: types.CallbackQuery) -> None:
         """
 
-        :param message:
-        :param state:
+        :param call:
         :return:
         """
-        async with state.proxy() as data:  # Устанавливаем состояние ожидания
-            data["weather"] = message.text
-            await message.reply(weather(data["weather"]))
-            await state.finish()
+
+        await call.message.answer("Напиши мне название города!")
+        await ProfilStatesGroup.weather.set()
+
+        @dp.message_handler(state=ProfilStatesGroup.weather)
+        async def get_weather(message: types.Message, state: FSMContext):
+            """
+
+            :param message:
+            :param state:
+            :return:
+            """
+            async with state.proxy() as data:  # Устанавливаем состояние ожидания
+                data["weather"] = message.text
+                await message.answer(weather(data["weather"]))
+                await state.finish()
 
 
 @dp.callback_query_handler(text="weather_long")
 async def new_weather(call: types.CallbackQuery) -> None:
     """
-
     :param call:
     :return:
     """
+    buttons_weather_another_long = [
+        types.InlineKeyboardButton(text=f'{return_city(call.from_user.id)[0]}', callback_data="weather_city_long"),
+        types.InlineKeyboardButton(text="⚙️ Другой город", callback_data="weather_city_long"),
+        types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
+    ]
+    keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=3)
+    keyboard_weather_another_long.add(*buttons_weather_another_long)
     await call.message.answer(
-        "Привет! Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!")
-    await ProfilStatesGroup.weather_long.set()
+        "Привет! Сводка погоды на ближайшие 5 дней! Утро и вечер! Выбери конфигурацию!", reply_markup=keyboard_weather_another_long)
 
-    @dp.message_handler(state=ProfilStatesGroup.weather_long)
-    async def get_weather(message: types.Message, state: FSMContext):
-        """-
 
-        :param message:
-        :param state:
-        :return:
-        """
-        async with state.proxy() as data:  # Устанавливаем состояние ожидания
-            data["weather_long"] = message.text
-            for i in weather_long(data["weather_long"]):
-                await message.reply(i)
-            await state.finish()
 
+    # await call.message.answer(
+    #     "Привет! Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!")
+    #
+    # await ProfilStatesGroup.weather_long.set()
+    #
+    # @dp.message_handler(state=ProfilStatesGroup.weather_long)
+    # async def get_weather(message: types.Message, state: FSMContext):
+    #     """-
+    #
+    #     :param message:
+    #     :param state:
+    #     :return:
+    #     """
+    #     async with state.proxy() as data:  # Устанавливаем состояние ожидания
+    #         data["weather_long"] = message.text
+    #         if weather_long(data["weather_long"]) == "Проверьте название города":
+    #             await message.answer(weather_long(data["weather_long"]))
+    #         else:
+    #             for i in weather_long(data["weather_long"]):
+    #                 await message.answer(i)
+    #         await state.finish()
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)

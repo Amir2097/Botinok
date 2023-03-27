@@ -1,4 +1,5 @@
 from aiogram import types
+from Database import return_city
 
 
 buttons_cmd_random = [
@@ -16,6 +17,20 @@ buttons_weather = [
 keyboard_weather_long = types.InlineKeyboardMarkup(row_width=2)
 keyboard_weather_long.add(*buttons_weather)
 
+buttons_weather_another = [
+        types.InlineKeyboardButton(text="⚙️ Другой город", callback_data="weather_city"),
+        types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
+    ]
+keyboard_weather_another = types.InlineKeyboardMarkup(row_width=2)
+keyboard_weather_another.add(*buttons_weather_another)
+
+# buttons_weather_another_long = [
+#         types.InlineKeyboardButton(text=f'{return_city(call.from_user.id)[0]}', callback_data="weather_city_long"),
+#         types.InlineKeyboardButton(text="⚙️ Другой город", callback_data="weather_city_long"),
+#         types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
+#     ]
+# keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=3)
+# keyboard_weather_another_long.add(*buttons_weather_another_long)
 
 buttons_send_random_value = [
         types.InlineKeyboardButton(text="📋 Новая заметка", callback_data="new_notes"),
