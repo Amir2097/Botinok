@@ -27,7 +27,6 @@ class ProfilStatesGroup(StatesGroup):
     weather = State()
     weather_long = State()
 
-
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
     """
@@ -156,22 +155,18 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
 
 @dp.callback_query_handler(text="events_data")
 async def events_data_info(call: types.CallbackQuery) -> None:
-    await call.message.answer("👞 Самая крутая способность БОТИНКА! 👞\n🎪 Если вы в раздумьях куда сходить? 🥊\n"
-                              "❗️ Тогда вам непременно ко мне❗\n"
-                              "🤖 Я подскажу куда сходить в вашем городе 🌃\n"
-                              "⌚️ Даже дам информацию на ближайшие 3 дня\n"
-                              "💜 Пользуйся, пока я добрый 💜\n"
-                              "⏪ Вернуться в стартовое меню /start 🔙", reply_markup=kb.keyboard_event)
+    await call.message.answer("👞 Список культурно-массовых мероприятий на 3 дня ", reply_markup=kb.keyboard_event)
 
     @dp.callback_query_handler(text="ext_data_event")
     async def event_settings(call: types.CallbackQuery):
         events_for_user = conclusion_event(call.from_user.id)
-        buttons_finish = [types.InlineKeyboardButton(text="Назад", callback_data="events_data")]
+        buttons_finish = [types.InlineKeyboardButton(text="🔙Назад", callback_data="events_data")]
         keyboard_finish = types.InlineKeyboardMarkup(row_width=1)
         keyboard_finish.add(*buttons_finish)
+        count_event = 0
         for pars_event in events_for_user:
             buttons_afisha = [types.InlineKeyboardButton(text="🔗Страница мероприятия", url=f"{pars_event[4]}")]
-            keyboard_afisha = types.InlineKeyboardMarkup(row_width=3)
+            keyboard_afisha = types.InlineKeyboardMarkup(row_width=1)
             keyboard_afisha.add(*buttons_afisha)
 
             try:
@@ -179,6 +174,7 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                 f"🗓Дата проведения мероприятия - {pars_event[0]}\n"
                 f"🎵Жанр - {pars_event[1]}\n"
                 f"☑️Название - {pars_event[2]}\n", reply_markup=keyboard_afisha)
+                count_event += 1
 
             except:
                 with open("save_error.txt", "a") as open_file_error:
@@ -187,7 +183,8 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                                           f"Ошибка - {pars_event[3]}.  "
                                           f"Ссылка - {pars_event[4]}\n")
 
-        await call.message.answer("Вывод завершен", reply_markup=keyboard_finish)
+        await call.message.answer(f"Вывод завершен. Мероприятий в Вашем городе {count_event}",
+                                  reply_markup=keyboard_finish)
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
@@ -280,8 +277,6 @@ async def new_weather(call: types.CallbackQuery) -> None:
                 await message.reply(i)
             await state.finish()
 
-
-###
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
