@@ -227,6 +227,7 @@ def return_city(ids):
     return name_city_db
 
 
+# TODO: Заготовка под клавиатуру ввода города
 def rerurn_alp_cuty():
     alphabet = ''.join([chr(i) for i in range(ord('а'), ord('а') + 32)])
     city_sort_dict = {}
@@ -241,13 +242,3 @@ def rerurn_alp_cuty():
     for keys_city in city_sort_dict.copy():
         if not city_sort_dict[keys_city]:
             city_sort_dict.pop(keys_city)
-    print(city_sort_dict)
-
-
-
-
-
-# city_entry()
-# print(event_entry(858035466))
-# print(conclusion_event(858035466))
-rerurn_alp_cuty()
