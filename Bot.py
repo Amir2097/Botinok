@@ -1,6 +1,9 @@
 import datetime
 import os
 import logging
+
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
 import keyboard as kb
 from extraction.weather import weather, weather_long
 from Database import session
@@ -9,7 +12,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from Database import User, Notes, user_entry, notes_new, city_edit, conclusion_event, return_city
+from Database import User, Notes, user_entry, notes_new, city_edit, conclusion_event, return_city, rerurn_alp_cuty
 
 load_dotenv()
 
@@ -19,6 +22,7 @@ bot = Bot(os.getenv("TOKEN"))
 dp = Dispatcher(bot, storage=MemoryStorage())
 logging.basicConfig(level=logging.INFO)
 
+alphabet_all = rerurn_alp_cuty()
 
 class ProfilStatesGroup(StatesGroup):
     text = State()
@@ -26,6 +30,30 @@ class ProfilStatesGroup(StatesGroup):
     edit = State()
     weather = State()
     weather_long = State()
+
+
+def gen_markup(quanity: int, prefix: str, row_width: int) -> InlineKeyboardMarkup:
+    gen_markup_key = []
+    markup = InlineKeyboardMarkup(row_width=row_width)
+    for keys_alph in alphabet_all:
+        gen_markup_key.append(keys_alph)
+    for i in range(quanity):
+        markup.insert(InlineKeyboardButton(f"{gen_markup_key[i]}", callback_data=f"{prefix}:{gen_markup_key[i]}"))
+    return markup
+
+
+@dp.message_handler(commands="test")
+async def cmd_random(message: types.Message):
+    markup = gen_markup(len(alphabet_all), "prefix", 5)
+    await message.answer(
+        f'Привет {message.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
+        reply_markup=markup)
+
+
+    # @dp.callback_query_handler(text=f"prefix:{}")
+    # async def returnstart(call: types.CallbackQuery) -> None:
+    #     pass
+
 
 @dp.message_handler(commands="start")
 async def cmd_random(message: types.Message):
@@ -187,8 +215,9 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                                               f"Ошибка - {pars_event[3]}.  "
                                               f"Ссылка - {pars_event[4]}\n")
 
-            await call.message.answer(f"Вывод завершен. Мероприятий в Вашем городе {count_event}",
-                                      reply_markup=keyboard_finish)
+            await call.message.answer(
+                f"Вывод завершен. Мероприятий в {return_city(call.from_user.id)[0]} - {count_event}",
+                reply_markup=keyboard_finish)
         except:
             await call.message.answer(f"Невозможно отобразить информацию по проводимым мероприятиям. "
                                       f"Возможно у Вас не установлен город. Зайдите в меню настроек.",
@@ -218,9 +247,11 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                 data['city'] = message.text
                 # await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
                 if city_edit(message.from_user.id, data['city']) == "Данный город отсутствует в базе":
-                    await message.answer(city_edit(message.from_user.id, data['city']), reply_markup=kb.keyboard_event_settings)
+                    await message.answer(city_edit(message.from_user.id, data['city']),
+                                         reply_markup=kb.keyboard_event_settings)
                 else:
-                    await message.answer(city_edit(message.from_user.id, data['city']) + "📌", reply_markup=kb.keyboard_event)
+                    await message.answer(city_edit(message.from_user.id, data['city']) + "📌",
+                                         reply_markup=kb.keyboard_event)
             await state.finish()
 
 
@@ -249,8 +280,9 @@ async def new_weather(call: types.CallbackQuery) -> None:
     """
     ext_city_db = session.query(User).filter(User.id_tg == call.from_user.id).first()
     if ext_city_db.city:
-        await call.message.answer("Выдаю сводку погоды сейчас в твоем городе! Но есть возможность выбрать другой город.",
-                                  reply_markup=kb.keyboard_weather_another)
+        await call.message.answer(
+            "Выдаю сводку погоды сейчас в твоем городе! Но есть возможность выбрать другой город.",
+            reply_markup=kb.keyboard_weather_another)
         await call.message.answer(weather(return_city(call.from_user.id)[0]))
 
     else:
@@ -311,7 +343,8 @@ async def new_weather(call: types.CallbackQuery) -> None:
         keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=2)
         keyboard_weather_another_long.add(*buttons_weather_another_long)
         await call.message.answer(
-            "Привет! Сводка погоды на ближайшие 5 дней! Утро и вечер! Выбери конфигурацию!", reply_markup=keyboard_weather_another_long)
+            "Привет! Сводка погоды на ближайшие 5 дней! Утро и вечер! Выбери конфигурацию!",
+            reply_markup=keyboard_weather_another_long)
 
         @dp.callback_query_handler(text="weather_my_city")
         async def weather_my_city(call: types.CallbackQuery) -> None:
@@ -349,6 +382,7 @@ async def new_weather(call: types.CallbackQuery) -> None:
             'Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!')
 
         await ProfilStatesGroup.weather_long.set()
+
         @dp.message_handler(state=ProfilStatesGroup.weather_long)
         async def get_weather(message: types.Message, state: FSMContext):
             """

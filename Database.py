@@ -242,3 +242,4 @@ def rerurn_alp_cuty():
     for keys_city in city_sort_dict.copy():
         if not city_sort_dict[keys_city]:
             city_sort_dict.pop(keys_city)
+    return city_sort_dict
