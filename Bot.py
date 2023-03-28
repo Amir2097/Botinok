@@ -299,7 +299,7 @@ async def new_weather(call: types.CallbackQuery) -> None:
             types.InlineKeyboardButton(text="⚙️ Другой город", callback_data="weather_city_settings"),
             types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
         ]
-        keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=3)
+        keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=2)
         keyboard_weather_another_long.add(*buttons_weather_another_long)
         await call.message.answer(
             "Привет! Сводка погоды на ближайшие 5 дней! Утро и вечер! Выбери конфигурацию!", reply_markup=keyboard_weather_another_long)

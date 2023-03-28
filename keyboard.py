@@ -3,7 +3,7 @@ from Database import return_city
 
 
 buttons_cmd_random = [
-        types.InlineKeyboardButton(text="📋 БОТИНОК для заметок", callback_data="botinok_info_notes"),
+        types.InlineKeyboardButton(text="📋 Заметки", callback_data="botinok_info_notes"),
         types.InlineKeyboardButton(text="✅ Мероприятия", callback_data="events_data"),
         types.InlineKeyboardButton(text="🌪 Погодный ботинок", callback_data="weather_start")
     ]
@@ -45,7 +45,7 @@ buttons_event = [
         types.InlineKeyboardButton(text="🎬 Все мероприятия", callback_data="ext_data_event"),
         types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
     ]
-keyboard_event = types.InlineKeyboardMarkup(row_width=3)
+keyboard_event = types.InlineKeyboardMarkup(row_width=2)
 keyboard_event.add(*buttons_event)
 
 
