@@ -235,9 +235,28 @@ async def new_weather(call: types.CallbackQuery) -> None:
     :param call:
     :return:
     """
-    await call.message.answer("Привет! Выдаю сводку погоды сейчас в твоем городе! Но есть возможность выбрать другой город.",
-                              reply_markup=kb.keyboard_weather_another)
-    await call.message.answer(weather(return_city(call.from_user.id)[0]))
+    ext_city_db = session.query(User).filter(User.id_tg == call.from_user.id).first()
+    if ext_city_db.city:
+        await call.message.answer("Выдаю сводку погоды сейчас в твоем городе! Но есть возможность выбрать другой город.",
+                                  reply_markup=kb.keyboard_weather_another)
+        await call.message.answer(weather(return_city(call.from_user.id)[0]))
+
+    else:
+        await call.message.answer("Напиши мне название города!")
+        await ProfilStatesGroup.weather.set()
+
+        @dp.message_handler(state=ProfilStatesGroup.weather)
+        async def get_weather(message: types.Message, state: FSMContext):
+            """
+
+            :param message:
+            :param state:
+            :return:
+            """
+            async with state.proxy() as data:  # Устанавливаем состояние ожидания
+                data["weather"] = message.text
+                await message.answer(weather(data["weather"]))
+                await state.finish()
 
     @dp.callback_query_handler(text="weather_city")
     async def new_weather(call: types.CallbackQuery) -> None:
@@ -270,39 +289,70 @@ async def new_weather(call: types.CallbackQuery) -> None:
     :param call:
     :return:
     """
-    buttons_weather_another_long = [
-        types.InlineKeyboardButton(text=f'{return_city(call.from_user.id)[0]}', callback_data="weather_city_long"),
-        types.InlineKeyboardButton(text="⚙️ Другой город", callback_data="weather_city_long"),
-        types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
-    ]
-    keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=3)
-    keyboard_weather_another_long.add(*buttons_weather_another_long)
-    await call.message.answer(
-        "Привет! Сводка погоды на ближайшие 5 дней! Утро и вечер! Выбери конфигурацию!", reply_markup=keyboard_weather_another_long)
+    ext_city_db = session.query(User).filter(User.id_tg == call.from_user.id).first()
+    if ext_city_db.city:
+        buttons_weather_another_long = [
+            types.InlineKeyboardButton(text=f'{ext_city_db.city}', callback_data="weather_my_city"),
+            types.InlineKeyboardButton(text="⚙️ Другой город", callback_data="weather_city_settings"),
+            types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
+        ]
+        keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=3)
+        keyboard_weather_another_long.add(*buttons_weather_another_long)
+        await call.message.answer(
+            "Привет! Сводка погоды на ближайшие 5 дней! Утро и вечер! Выбери конфигурацию!", reply_markup=keyboard_weather_another_long)
 
+        @dp.callback_query_handler(text="weather_my_city")
+        async def weather_my_city(call: types.CallbackQuery) -> None:
+            if weather_long(ext_city_db.city) == "Проверьте название города":
+                await call.message.answer(weather_long(ext_city_db.city))
+            else:
+                for i in weather_long(ext_city_db.city):
+                    await call.message.answer(i)
 
+        @dp.callback_query_handler(text="weather_city_settings")
+        async def weather_my_city(call: types.CallbackQuery) -> None:
+            await call.message.answer(
+                'Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!')
+            await ProfilStatesGroup.weather_long.set()
 
-    # await call.message.answer(
-    #     "Привет! Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!")
-    #
-    # await ProfilStatesGroup.weather_long.set()
-    #
-    # @dp.message_handler(state=ProfilStatesGroup.weather_long)
-    # async def get_weather(message: types.Message, state: FSMContext):
-    #     """-
-    #
-    #     :param message:
-    #     :param state:
-    #     :return:
-    #     """
-    #     async with state.proxy() as data:  # Устанавливаем состояние ожидания
-    #         data["weather_long"] = message.text
-    #         if weather_long(data["weather_long"]) == "Проверьте название города":
-    #             await message.answer(weather_long(data["weather_long"]))
-    #         else:
-    #             for i in weather_long(data["weather_long"]):
-    #                 await message.answer(i)
-    #         await state.finish()
+            @dp.message_handler(state=ProfilStatesGroup.weather_long)
+            async def get_weather(message: types.Message, state: FSMContext):
+                """-
+
+                :param message:
+                :param state:
+                :return:
+                """
+                async with state.proxy() as data:  # Устанавливаем состояние ожидания
+                    data["weather_long"] = message.text
+                    if weather_long(data["weather_long"]) == "Проверьте название города":
+                        await message.answer(weather_long(data["weather_long"]))
+                    else:
+                        for i in weather_long(data["weather_long"]):
+                            await message.answer(i)
+                    await state.finish()
+
+    else:
+        await call.message.answer(
+            'Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!')
+
+        await ProfilStatesGroup.weather_long.set()
+        @dp.message_handler(state=ProfilStatesGroup.weather_long)
+        async def get_weather(message: types.Message, state: FSMContext):
+            """
+            :param message:
+            :param state:
+            :return:
+            """
+            async with state.proxy() as data:  # Устанавливаем состояние ожидания
+                data["weather_long"] = message.text
+                if weather_long(data["weather_long"]) == "Проверьте название города":
+                    await message.answer(weather_long(data["weather_long"]))
+                else:
+                    for i in weather_long(data["weather_long"]):
+                        await message.answer(i)
+                await state.finish()
+
 
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)

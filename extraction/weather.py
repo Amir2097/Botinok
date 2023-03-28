@@ -40,7 +40,7 @@ def weather(data):
     """
     try:
         response = requests.get(
-            f'https://api.openweathermap.org/data/2.5/weather?q={data}&appid={os.getenv("open_weather_token")}&units=metric'
+            f'https://api.openweathermap.org/data/2.5/weather?q={data}&appid={os.getenv("open_weather_token")}&units=metric&lang=ru'
         )
         data = response.json()
 
