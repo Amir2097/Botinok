@@ -159,11 +159,14 @@ async def events_data_info(call: types.CallbackQuery) -> None:
 
     @dp.callback_query_handler(text="ext_data_event")
     async def event_settings(call: types.CallbackQuery):
+        buttons_finish = [types.InlineKeyboardButton(text="🔙Назад", callback_data="events_data")]
+        keyboard_finish = types.InlineKeyboardMarkup(row_width=1)
+        keyboard_finish.add(*buttons_finish)
+        buttons_set = [types.InlineKeyboardButton(text="⚙️ Настройки", callback_data="setting")]
+        keyboard_set = types.InlineKeyboardMarkup(row_width=1)
+        keyboard_set.add(*buttons_set)
         try:
             events_for_user = conclusion_event(call.from_user.id)
-            buttons_finish = [types.InlineKeyboardButton(text="🔙Назад", callback_data="events_data")]
-            keyboard_finish = types.InlineKeyboardMarkup(row_width=1)
-            keyboard_finish.add(*buttons_finish)
             count_event = 0
             for pars_event in events_for_user:
                 buttons_afisha = [types.InlineKeyboardButton(text="🔗Страница мероприятия", url=f"{pars_event[4]}")]
@@ -187,7 +190,9 @@ async def events_data_info(call: types.CallbackQuery) -> None:
             await call.message.answer(f"Вывод завершен. Мероприятий в Вашем городе {count_event}",
                                       reply_markup=keyboard_finish)
         except:
-            await call.message.answer(f"Невозможно отобразить информацию по проводимым мероприятиям. Возможно у Вас не установлен город. Зайдите в меню настроек.")
+            await call.message.answer(f"Невозможно отобразить информацию по проводимым мероприятиям. "
+                                      f"Возможно у Вас не установлен город. Зайдите в меню настроек.",
+                                      reply_markup=keyboard_set)
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
@@ -211,7 +216,11 @@ async def events_data_info(call: types.CallbackQuery) -> None:
         async def event_city(message: types.Message, state: FSMContext):
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['city'] = message.text
-                await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
+                # await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
+                if city_edit(message.from_user.id, data['city']) == "Данный город отсутствует в базе":
+                    await message.answer(city_edit(message.from_user.id, data['city']), reply_markup=kb.keyboard_event_settings)
+                else:
+                    await message.answer(city_edit(message.from_user.id, data['city']) + "📌", reply_markup=kb.keyboard_event)
             await state.finish()
 
 
