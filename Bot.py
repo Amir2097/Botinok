@@ -159,32 +159,35 @@ async def events_data_info(call: types.CallbackQuery) -> None:
 
     @dp.callback_query_handler(text="ext_data_event")
     async def event_settings(call: types.CallbackQuery):
-        events_for_user = conclusion_event(call.from_user.id)
-        buttons_finish = [types.InlineKeyboardButton(text="🔙Назад", callback_data="events_data")]
-        keyboard_finish = types.InlineKeyboardMarkup(row_width=1)
-        keyboard_finish.add(*buttons_finish)
-        count_event = 0
-        for pars_event in events_for_user:
-            buttons_afisha = [types.InlineKeyboardButton(text="🔗Страница мероприятия", url=f"{pars_event[4]}")]
-            keyboard_afisha = types.InlineKeyboardMarkup(row_width=1)
-            keyboard_afisha.add(*buttons_afisha)
+        try:
+            events_for_user = conclusion_event(call.from_user.id)
+            buttons_finish = [types.InlineKeyboardButton(text="🔙Назад", callback_data="events_data")]
+            keyboard_finish = types.InlineKeyboardMarkup(row_width=1)
+            keyboard_finish.add(*buttons_finish)
+            count_event = 0
+            for pars_event in events_for_user:
+                buttons_afisha = [types.InlineKeyboardButton(text="🔗Страница мероприятия", url=f"{pars_event[4]}")]
+                keyboard_afisha = types.InlineKeyboardMarkup(row_width=1)
+                keyboard_afisha.add(*buttons_afisha)
 
-            try:
-                await call.message.answer_photo(pars_event[3], caption=
-                f"🗓Дата проведения мероприятия - {pars_event[0]}\n"
-                f"🎵Жанр - {pars_event[1]}\n"
-                f"☑️Название - {pars_event[2]}\n", reply_markup=keyboard_afisha)
-                count_event += 1
+                try:
+                    await call.message.answer_photo(pars_event[3], caption=
+                    f"🗓Дата проведения мероприятия - {pars_event[0]}\n"
+                    f"🎵Жанр - {pars_event[1]}\n"
+                    f"☑️Название - {pars_event[2]}\n", reply_markup=keyboard_afisha)
+                    count_event += 1
 
-            except:
-                with open("save_error.txt", "a") as open_file_error:
-                    open_file_error.write(f"{datetime.datetime.now()}.  "
-                                          f"Пользователь - {call.from_user.id}.  "
-                                          f"Ошибка - {pars_event[3]}.  "
-                                          f"Ссылка - {pars_event[4]}\n")
+                except:
+                    with open("save_error.txt", "a") as open_file_error:
+                        open_file_error.write(f"{datetime.datetime.now()}.  "
+                                              f"Пользователь - {call.from_user.id}.  "
+                                              f"Ошибка - {pars_event[3]}.  "
+                                              f"Ссылка - {pars_event[4]}\n")
 
-        await call.message.answer(f"Вывод завершен. Мероприятий в Вашем городе {count_event}",
-                                  reply_markup=keyboard_finish)
+            await call.message.answer(f"Вывод завершен. Мероприятий в Вашем городе {count_event}",
+                                      reply_markup=keyboard_finish)
+        except:
+            await call.message.answer(f"Невозможно отобразить информацию по проводимым мероприятиям. Возможно у Вас не установлен город. Зайдите в меню настроек.")
 
     @dp.callback_query_handler(text="setting")
     async def event_settings(call: types.CallbackQuery):
