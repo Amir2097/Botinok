@@ -69,6 +69,9 @@ async def cmd_random(message: types.Message):
 
 @dp.callback_query_handler(text="returnstart")
 async def returnstart(call: types.CallbackQuery) -> None:
+    """
+    Стартовое приветствие пользователя на реализованные функции в виде inline кнопок
+    """
     await call.message.answer(
         f'Привет {call.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
         reply_markup=kb.keyboard_cmd_random)
@@ -79,9 +82,8 @@ async def returnstart(call: types.CallbackQuery) -> None:
 @dp.callback_query_handler(text="botinok_info_notes")
 async def botinok_info_notes(call: types.CallbackQuery) -> None:
     """
-
-    :param call:
-    :return:
+    Основная функция для заметок, с информацией о реализации
+    :return: inline кнопки 'Новая заметка' и 'Мои заметки'
     """
     await call.message.answer("👞 БОТИНОК для заметок! 👞\n🗒 В меня вы можете записывать ваши заметки 🗒\n"
                               "❗️ Как большие, так и не очень ❗\n"
@@ -93,9 +95,7 @@ async def botinok_info_notes(call: types.CallbackQuery) -> None:
 @dp.callback_query_handler(text="new_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
     """
-
-    :param call:
-    :return:
+    Создание новой заметки с помощью машины состояний
     """
     await call.message.answer("Напишите новую заметку ✍️!")
     await ProfilStatesGroup.text.set()  # Устанавливаем состояние
@@ -104,10 +104,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
 @dp.message_handler(state=ProfilStatesGroup.text)  # Принимаем состояние
 async def new_notes_add(message: types.Message, state: FSMContext):
     """
-
-    :param message:
-    :param state:
-    :return:
+    Принимает от пользователя заметку и добавляет в БД
     """
     async with state.proxy() as data:  # Устанавливаем состояние ожидания
         data['text'] = message.text
@@ -121,9 +118,7 @@ async def new_notes_add(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(text="my_notes")
 async def new_notes_add(call: types.CallbackQuery) -> None:
     """
-
-    :param call:
-    :return:
+    Выдача всех заметок пользователя, фильтрация через id_tg
     """
     subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
     subq_my_notes = session.query(Notes).filter(Notes.user_id == subq.id).all()
@@ -134,9 +129,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
     @dp.callback_query_handler(text="edit_notes")
     async def edit_notes(call: types.CallbackQuery) -> None:
         """
-
-        :param call:
-        :return:
+        Редактирование заметки
         """
         sample = call.message.text
         await call.message.answer(f'Напишите данную заметку по новому!')
@@ -146,10 +139,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         @dp.message_handler(state=ProfilStatesGroup.edit)  # Принимаем состояние
         async def edit_notes_state(message: types.Message, state: FSMContext):
             """
-
-            :param message:
-            :param state:
-            :return:
+            Машинное состояние принимает от пользователя новую измененную заметку
             """
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data['edit'] = message.text
@@ -160,14 +150,11 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
                 session.commit()
             await message.answer(f'Заметка изменена ✍️!')
             await state.finish()
-            # Подумать как решить проблему по редактированию
 
     @dp.callback_query_handler(text="delete_notes")
     async def delete_notes(call: types.CallbackQuery) -> None:
         """
-
-        :param call:
-        :return:
+        Удаление заметки из БД
         """
         sample = call.message.text
         subq = session.query(User).filter(User.id_tg == call.from_user.id).first()
@@ -175,7 +162,6 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.delete(subq_notes)
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
-
 
 #################################################################
 
@@ -262,9 +248,8 @@ async def events_data_info(call: types.CallbackQuery) -> None:
 @dp.callback_query_handler(text="weather_start")
 async def weather_info(call: types.CallbackQuery) -> None:
     """
-
-    :param call:
-    :return:
+    Основная погодная функция с инофрмацией
+    return: inline кнопки 'Погода сейчас' и 'На 5 дней'
     """
     await call.message.answer("🏞 ПОГОДНЫЙ БОТИНОК! 🌅\n🗺 Информирую очень подробно о погоде в вашем городе!\n"
                               "❗🌁 Вам нужно написать только свой город❗\n"
@@ -274,9 +259,9 @@ async def weather_info(call: types.CallbackQuery) -> None:
 @dp.callback_query_handler(text="weather")
 async def new_weather(call: types.CallbackQuery) -> None:
     """
-
-    :param call:
-    :return:
+    Выдает погоду сейчас по городу пользователя. Реализация if: если город пользователя имеется в БД и
+    else: если нету, город еще не добавлен в БД
+    Имеется функция weather импортирована из extraction.weather.py
     """
     ext_city_db = session.query(User).filter(User.id_tg == call.from_user.id).first()
     if ext_city_db.city:
@@ -292,10 +277,7 @@ async def new_weather(call: types.CallbackQuery) -> None:
         @dp.message_handler(state=ProfilStatesGroup.weather)
         async def get_weather(message: types.Message, state: FSMContext):
             """
-
-            :param message:
-            :param state:
-            :return:
+            Машинное состояние принимает город от польхователя и выполняет функцию weather
             """
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data["weather"] = message.text
@@ -305,21 +287,15 @@ async def new_weather(call: types.CallbackQuery) -> None:
     @dp.callback_query_handler(text="weather_city")
     async def new_weather(call: types.CallbackQuery) -> None:
         """
-
-        :param call:
-        :return:
+        Выдача погоды пользователю по введенному в чат городу
         """
-
         await call.message.answer("Напиши мне название города!")
         await ProfilStatesGroup.weather.set()
 
         @dp.message_handler(state=ProfilStatesGroup.weather)
         async def get_weather(message: types.Message, state: FSMContext):
             """
-
-            :param message:
-            :param state:
-            :return:
+            Машинное состояние принимает город от пользователя и weather выдает погоду
             """
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data["weather"] = message.text
@@ -330,14 +306,15 @@ async def new_weather(call: types.CallbackQuery) -> None:
 @dp.callback_query_handler(text="weather_long")
 async def new_weather(call: types.CallbackQuery) -> None:
     """
-    :param call:
-    :return:
+    Выдача погоды на ближайшие 5 дней. Утро и вечер
+    Реализия if: если имеется город пользователя в БД, else: если города нету
+    Встроенная функция погоды weather_long из extraction.weather.py
     """
     ext_city_db = session.query(User).filter(User.id_tg == call.from_user.id).first()
     if ext_city_db.city:
         buttons_weather_another_long = [
-            types.InlineKeyboardButton(text=f'{ext_city_db.city}', callback_data="weather_my_city"),
-            types.InlineKeyboardButton(text="⚙️ Другой город", callback_data="weather_city_settings"),
+            types.InlineKeyboardButton(text=f'🗽 {ext_city_db.city}', callback_data="weather_my_city"),
+            types.InlineKeyboardButton(text="🏙 Другой город", callback_data="weather_city_settings"),
             types.InlineKeyboardButton(text="🔙 В начало", callback_data="returnstart")
         ]
         keyboard_weather_another_long = types.InlineKeyboardMarkup(row_width=2)
@@ -348,6 +325,9 @@ async def new_weather(call: types.CallbackQuery) -> None:
 
         @dp.callback_query_handler(text="weather_my_city")
         async def weather_my_city(call: types.CallbackQuery) -> None:
+            """
+            Выдача погоды на ближайшие 5 дней функцией weather_long
+            """
             if weather_long(ext_city_db.city) == "Проверьте название города":
                 await call.message.answer(weather_long(ext_city_db.city))
             else:
@@ -355,18 +335,19 @@ async def new_weather(call: types.CallbackQuery) -> None:
                     await call.message.answer(i)
 
         @dp.callback_query_handler(text="weather_city_settings")
-        async def weather_my_city(call: types.CallbackQuery) -> None:
+        async def weather_city_settings(call: types.CallbackQuery) -> None:
+            """
+            Машинное состояние принимает город от пользователя из чата
+            """
             await call.message.answer(
                 'Напиши мне название города и я пришлю сводку погоды на ближайшие 5 дней! Утро и вечер!')
             await ProfilStatesGroup.weather_long.set()
 
             @dp.message_handler(state=ProfilStatesGroup.weather_long)
             async def get_weather(message: types.Message, state: FSMContext):
-                """-
-
-                :param message:
-                :param state:
-                :return:
+                """
+                Берет город из машинного состояния и реализует функцию weather_long,
+                выдает пользователю погоду на 5 дней
                 """
                 async with state.proxy() as data:  # Устанавливаем состояние ожидания
                     data["weather_long"] = message.text
@@ -384,11 +365,10 @@ async def new_weather(call: types.CallbackQuery) -> None:
         await ProfilStatesGroup.weather_long.set()
 
         @dp.message_handler(state=ProfilStatesGroup.weather_long)
-        async def get_weather(message: types.Message, state: FSMContext):
+        async def get_weather_from_user(message: types.Message, state: FSMContext):
             """
-            :param message:
-            :param state:
-            :return:
+            Принимает из машинного состояния город пользователя
+            Через weather_long реализует выдачу погоды на ближайшие 5 дней
             """
             async with state.proxy() as data:  # Устанавливаем состояние ожидания
                 data["weather_long"] = message.text
