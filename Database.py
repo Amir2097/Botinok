@@ -15,7 +15,9 @@ Base = declarative_base()
 
 
 class User(Base):
+
     __tablename__ = 'User'
+
     id = sq.Column(sq.Integer, primary_key=True)
     id_tg = sq.Column(sq.Integer, nullable=False)
     first_name = sq.Column(sq.String(length=80))
@@ -27,7 +29,9 @@ class User(Base):
 
 
 class Notes(Base):
+
     __tablename__ = 'Notes'
+
     id = sq.Column(sq.Integer, primary_key=True)
     created_date = sq.Column(sq.DateTime, default=datetime.datetime.utcnow)
     text_notes = sq.Column(sq.Text)
@@ -39,7 +43,9 @@ class Notes(Base):
 
 
 class City(Base):
+
     __tablename__ = 'City'
+
     id = sq.Column(sq.Integer, primary_key=True)
     id_city = sq.Column(sq.Integer)
     name = sq.Column(sq.String(length=80))
@@ -51,7 +57,9 @@ class City(Base):
 
 
 class Event(Base):
+
     __tablename__ = 'Event'
+
     id = sq.Column(sq.Integer, primary_key=True)
     last_update = sq.Column(sq.DateTime, default=datetime.datetime.utcnow)
     date = sq.Column(sq.String(length=80))

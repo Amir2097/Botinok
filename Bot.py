@@ -3,7 +3,7 @@ import os
 import logging
 
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-
+from extraction.ext_horoscope import get_zodiac
 import keyboard as kb
 from extraction.weather import weather, weather_long
 from Database import session
@@ -48,7 +48,6 @@ async def cmd_random(message: types.Message):
     await message.answer(
         f'Привет {message.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
         reply_markup=markup)
-
 
     # @dp.callback_query_handler(text=f"prefix:{}")
     # async def returnstart(call: types.CallbackQuery) -> None:
@@ -378,6 +377,26 @@ async def new_weather(call: types.CallbackQuery) -> None:
                     for i in weather_long(data["weather_long"]):
                         await message.answer(i)
                 await state.finish()
+
+
+##################################ГОРОСКОП########################################################
+
+@dp.callback_query_handler(text="horoscope")
+async def horoscope(call: types.CallbackQuery) -> None:
+    """
+    Функция с Inline кнопками на гороскоп сегодня
+    """
+    await call.message.answer("👁‍🗨 Гороскоп для всех знаков на сегодня", reply_markup=kb.keyboard_horo)
+
+    @dp.callback_query_handler()
+    async def get_horoscope(call: types.CallbackQuery) -> None:
+        """
+        Принимает знак зодиака и через get_zodiac, выдает желаемый результат
+        """
+        zodiac = call.data
+        text_zodiac = await get_zodiac(zodiac)
+        await call.message.edit_text(text=text_zodiac)
+
 
 
 if __name__ == "__main__":
