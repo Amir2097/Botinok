@@ -24,6 +24,7 @@ logging.basicConfig(level=logging.INFO)
 
 alphabet_all = rerurn_alp_cuty()
 
+
 class ProfilStatesGroup(StatesGroup):
     text = State()
     city = State()
@@ -32,26 +33,32 @@ class ProfilStatesGroup(StatesGroup):
     weather_long = State()
 
 
-def gen_markup(quanity: int, prefix: str, row_width: int) -> InlineKeyboardMarkup:
+################################РАЗРАБОТКА КЛАВЫ########################################
+
+def gen_markup_alp(quanity: int, prefix: str, row_width: int) -> InlineKeyboardMarkup:
     gen_markup_key = []
-    markup = InlineKeyboardMarkup(row_width=row_width)
+    markup_alp = InlineKeyboardMarkup(row_width=row_width)
+
     for keys_alph in alphabet_all:
         gen_markup_key.append(keys_alph)
     for i in range(quanity):
-        markup.insert(InlineKeyboardButton(f"{gen_markup_key[i]}", callback_data=f"{prefix}:{gen_markup_key[i]}"))
-    return markup
+        markup_alp.insert(InlineKeyboardButton(f"{gen_markup_key[i]}", callback_data=f"{prefix}:{gen_markup_key[i]}"))
+    return markup_alp
 
 
-@dp.message_handler(commands="test")
-async def cmd_random(message: types.Message):
-    markup = gen_markup(len(alphabet_all), "prefix", 5)
-    await message.answer(
-        f'Привет {message.from_user.first_name}!👋 Я БОТИНОК многофункциональный!🤖 Пока во мне реализованы заметки!✍️',
-        reply_markup=markup)
+def gen_markup_cyt(quanity: int, prefix: str, row_width: int, alp_cyt: str) -> InlineKeyboardMarkup:
+    cyties_data = []
+    markup_cyty = InlineKeyboardMarkup(row_width=row_width)
 
-    # @dp.callback_query_handler(text=f"prefix:{}")
-    # async def returnstart(call: types.CallbackQuery) -> None:
-    #     pass
+    for cytiest in alphabet_all[alp_cyt]:
+        cyties_data.append(cytiest)
+
+    for i in range(quanity):
+        markup_cyty.insert(InlineKeyboardButton(f"{cyties_data[i]}", callback_data=f"{prefix}:{cyties_data[i]}"))
+    return markup_cyty
+
+
+################################РАЗРАБОТКА КЛАВЫ########################################
 
 
 @dp.message_handler(commands="start")
@@ -162,6 +169,7 @@ async def new_notes_add(call: types.CallbackQuery) -> None:
         session.commit()
         await call.message.answer(f'Данная заметка удалена!')
 
+
 #################################################################
 
 ####################МЕРОПРИЯТИЯ##################################
@@ -222,22 +230,37 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                                   reply_markup=kb.keyboard_event_settings)
 
         @dp.callback_query_handler(text="city_edit")
-        async def event_edit_city(call: types.CallbackQuery) -> None:
-            await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
-            await ProfilStatesGroup.city.set()
+        async def cyt_edit_alp(call_alp: types.CallbackQuery):
+            markup = gen_markup_alp(len(alphabet_all), "alp", 5)
+            await call_alp.message.answer(f'Начальная буква Вашего города✍️', reply_markup=markup)
 
-        @dp.message_handler(state=ProfilStatesGroup.city)
-        async def event_city(message: types.Message, state: FSMContext):
-            async with state.proxy() as data:  # Устанавливаем состояние ожидания
-                data['city'] = message.text
-                # await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
-                if city_edit(message.from_user.id, data['city']) == "Данный город отсутствует в базе":
-                    await message.answer(city_edit(message.from_user.id, data['city']),
-                                         reply_markup=kb.keyboard_event_settings)
-                else:
-                    await message.answer(city_edit(message.from_user.id, data['city']) + "📌",
-                                         reply_markup=kb.keyboard_event)
-            await state.finish()
+            @dp.callback_query_handler()
+            async def cyt_edit_cyt(call_cyt: types.CallbackQuery):
+                index_city = call_cyt.data[4]
+                markup_cyt = gen_markup_cyt(len(alphabet_all[index_city]), "cyt", 3, call_cyt.data[4])
+                await call_cyt.message.answer(
+                    f'Выбирите из списка Ваш город, в случае отсутствия выбирите ближайший к вам город✍️',
+                    reply_markup=markup_cyt)
+
+
+
+        # @dp.callback_query_handler(text="city_edit")
+        # async def event_edit_city(call: types.CallbackQuery) -> None:
+        #     await call.message.answer("Введите город по которому будет осуществляться поиск мероприятий ✍️!")
+        #     await ProfilStatesGroup.city.set()
+        #
+        # @dp.message_handler(state=ProfilStatesGroup.city)
+        # async def event_city(message: types.Message, state: FSMContext):
+        #     async with state.proxy() as data:  # Устанавливаем состояние ожидания
+        #         data['city'] = message.text
+        #         # await message.answer(city_edit(message.from_user.id, data['city']) + "📌")
+        #         if city_edit(message.from_user.id, data['city']) == "Данный город отсутствует в базе":
+        #             await message.answer(city_edit(message.from_user.id, data['city']),
+        #                                  reply_markup=kb.keyboard_event_settings)
+        #         else:
+        #             await message.answer(city_edit(message.from_user.id, data['city']) + "📌",
+        #                                  reply_markup=kb.keyboard_event)
+        #     await state.finish()
 
 
 ##############################################################################
@@ -396,7 +419,6 @@ async def horoscope(call: types.CallbackQuery) -> None:
         zodiac = call.data
         text_zodiac = await get_zodiac(zodiac)
         await call.message.edit_text(text=text_zodiac)
-
 
 
 if __name__ == "__main__":
