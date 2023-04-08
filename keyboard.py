@@ -75,5 +75,5 @@ keyboard_horo = types.InlineKeyboardMarkup(row_width=3)
 keyboard_horo.add(*buttons_horo)
 
 
-
+new_list = ["aries", "taurus"]
 

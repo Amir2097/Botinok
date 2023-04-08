@@ -23,6 +23,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 logging.basicConfig(level=logging.INFO)
 
 alphabet_all = rerurn_alp_cuty()
+new_list = ["aries", "taurus"]
 
 
 class ProfilStatesGroup(StatesGroup):
@@ -31,6 +32,7 @@ class ProfilStatesGroup(StatesGroup):
     edit = State()
     weather = State()
     weather_long = State()
+    horosc = State()
 
 
 ################################РАЗРАБОТКА КЛАВЫ########################################
@@ -238,7 +240,7 @@ async def events_data_info(call: types.CallbackQuery) -> None:
         async def cyt_edit_cyt(call_cyt: types.CallbackQuery):
             index_city = call_cyt.data[4]
             try:
-                markup_cyt = gen_markup_cyt(len(alphabet_all[index_city]), "cyt", 3, call_cyt.data[4])
+                markup_cyt = gen_markup_cyt(len(alphabet_all[index_city]), "cyt", 3, index_city)
                 await call_cyt.message.answer(
                     f'Выбирите из списка Ваш город, в случае отсутствия выбирите ближайший к вам город✍️',
                     reply_markup=markup_cyt)
@@ -246,9 +248,12 @@ async def events_data_info(call: types.CallbackQuery) -> None:
                 city_edit(call_cyt.from_user.id, call_cyt.data[4:])
                 await call_cyt.message.answer(f'Изменения внесены ✍️\n Установлен город - {call_cyt.data[4:]}')
 
-
-
-
+                @dp.callback_query_handler()
+                async def cyt_input(call: types.CallbackQuery):
+                    city = call.data[4:]
+                    print(city)
+                    await call.message.answer(
+                        f'Выбирите из списка Ваш город, в случае отсутствия выбирите ближайший к вам город✍️')
 
         # @dp.callback_query_handler(text="city_edit")
         # async def event_edit_city(call: types.CallbackQuery) -> None:
@@ -411,13 +416,14 @@ async def new_weather(call: types.CallbackQuery) -> None:
 ##################################ГОРОСКОП########################################################
 
 @dp.callback_query_handler(text="horoscope")
-async def horoscope(call: types.CallbackQuery) -> None:
+async def horoscope(call: types.CallbackQuery, state: FSMContext) -> None:
     """
     Функция с Inline кнопками на гороскоп сегодня
     """
     await call.message.answer("👁‍🗨 Гороскоп для всех знаков на сегодня", reply_markup=kb.keyboard_horo)
+    await ProfilStatesGroup.horosc.set()
 
-    @dp.callback_query_handler()
+    @dp.callback_query_handler(state=ProfilStatesGroup.horosc)
     async def get_horoscope(call: types.CallbackQuery) -> None:
         """
         Принимает знак зодиака и через get_zodiac, выдает желаемый результат
@@ -425,6 +431,7 @@ async def horoscope(call: types.CallbackQuery) -> None:
         zodiac = call.data
         text_zodiac = await get_zodiac(zodiac)
         await call.message.edit_text(text=text_zodiac)
+        await state.finish()
 
 
 if __name__ == "__main__":
