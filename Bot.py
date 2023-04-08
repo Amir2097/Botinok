@@ -23,7 +23,6 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 logging.basicConfig(level=logging.INFO)
 
 alphabet_all = rerurn_alp_cuty()
-new_list = ["aries", "taurus"]
 
 
 class ProfilStatesGroup(StatesGroup):
