@@ -6,13 +6,13 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from extraction.ext_horoscope import get_zodiac
 import keyboard as kb
 from extraction.weather import weather, weather_long
-from Database import session
+from Database import session, city_edit
 from dotenv import load_dotenv
 from aiogram.dispatcher import FSMContext
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from Database import User, Notes, user_entry, notes_new, city_edit, conclusion_event, return_city, rerurn_alp_cuty
+from Database import User, Notes, user_entry, notes_new, conclusion_event, return_city, rerurn_alp_cuty
 
 load_dotenv()
 
@@ -234,13 +234,19 @@ async def events_data_info(call: types.CallbackQuery) -> None:
             markup = gen_markup_alp(len(alphabet_all), "alp", 5)
             await call_alp.message.answer(f'Начальная буква Вашего города✍️', reply_markup=markup)
 
-            @dp.callback_query_handler()
-            async def cyt_edit_cyt(call_cyt: types.CallbackQuery):
-                index_city = call_cyt.data[4]
+        @dp.callback_query_handler()
+        async def cyt_edit_cyt(call_cyt: types.CallbackQuery):
+            index_city = call_cyt.data[4]
+            try:
                 markup_cyt = gen_markup_cyt(len(alphabet_all[index_city]), "cyt", 3, call_cyt.data[4])
                 await call_cyt.message.answer(
                     f'Выбирите из списка Ваш город, в случае отсутствия выбирите ближайший к вам город✍️',
                     reply_markup=markup_cyt)
+            except:
+                city_edit(call_cyt.from_user.id, call_cyt.data[4:])
+                await call_cyt.message.answer(f'Изменения внесены ✍️\n Установлен город - {call_cyt.data[4:]}')
+
+
 
 
 
